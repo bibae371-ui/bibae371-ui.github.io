@@ -184,8 +184,76 @@
     "moving average_1.ma.plottype": "line"
   };
 
+  var QS = new URLSearchParams(location.search);
+  var ENGINE = QS.get("e") || "m1";      // m1: modern+objects, m2: modern+strings, l1: legacy tv.js
+  var CMPPOS = QS.get("cmp") || "SameScale";
+
   function render(){
     uid++;
+    chartEl.innerHTML = "";
+    curName.textContent = state.name;
+    curSym.textContent = state.symbol;
+    Array.prototype.forEach.call(bar.querySelectorAll(".chip"), function(c){
+      c.classList.toggle("active", c.getAttribute("data-symbol") === state.symbol);
+    });
+    if (ENGINE === "l1") { renderLegacy(); return; }
+    renderModern();
+  }
+
+  function renderModern(){
+    var wrap = document.createElement("div");
+    wrap.className = "tradingview-widget-container";
+    wrap.style.height = "100%";
+    wrap.style.width = "100%";
+    var inner = document.createElement("div");
+    inner.className = "tradingview-widget-container__widget";
+    inner.style.height = "100%";
+    inner.style.width = "100%";
+    wrap.appendChild(inner);
+    chartEl.appendChild(wrap);
+
+    var studiesConf = (ENGINE === "m2")
+      ? ["MASimple@tv-basicstudies", "MASimple@tv-basicstudies"]
+      : [{ id: "MASimple@tv-basicstudies", inputs: { length: 120 } },
+         { id: "MASimple@tv-basicstudies", inputs: { length: 200 } }];
+
+    var cfg = {
+      autosize: true,
+      symbol: state.symbol,
+      interval: "D",
+      timezone: "Asia/Seoul",
+      theme: "dark",
+      style: "1",
+      locale: "ko",
+      backgroundColor: "rgba(18,22,28,1)",
+      gridColor: "rgba(35,43,54,0.6)",
+      hide_top_toolbar: false,
+      hide_side_toolbar: false,
+      hide_legend: false,
+      hide_volume: false,
+      allow_symbol_change: true,
+      save_image: true,
+      withdateranges: true,
+      details: false,
+      hotlist: false,
+      calendar: false,
+      watchlist: [],
+      studies: studiesConf,
+      studies_overrides: studiesOverrides,
+      support_host: "https://www.tradingview.com"
+    };
+    if (state.compare && state.symbol !== GOLD) {
+      cfg.compareSymbols = [{ symbol: GOLD, position: CMPPOS }];
+    }
+    var sc = document.createElement("script");
+    sc.type = "text/javascript";
+    sc.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
+    sc.async = true;
+    sc.innerHTML = JSON.stringify(cfg);
+    wrap.appendChild(sc);
+  }
+
+  function renderLegacy(){
     var id = "tv_chart_" + uid;
     chartEl.innerHTML = '<div id="' + id + '" style="height:100%;width:100%"></div>';
     var cfg = {
@@ -214,16 +282,10 @@
     if (state.compare && state.symbol !== GOLD) {
       cfg.compareSymbols = [{ symbol: GOLD, symbolLabel: "금" }];
     }
-    try {
-      new TradingView.widget(cfg);
-    } catch (e) {
+    try { new TradingView.widget(cfg); }
+    catch (e) {
       chartEl.innerHTML = '<div style="padding:24px;color:#8b97a6;font-size:13px">차트를 불러오지 못했습니다. 잠시 후 새로고침해 주세요.</div>';
     }
-    curName.textContent = state.name;
-    curSym.textContent = state.symbol;
-    Array.prototype.forEach.call(bar.querySelectorAll(".chip"), function(c){
-      c.classList.toggle("active", c.getAttribute("data-symbol") === state.symbol);
-    });
   }
 
   function setGoldUI(){
