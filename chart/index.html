@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BTC · GOLD 차트 — 120일선 / 200일선</title>
+<meta name="description" content="비트코인·금·나스닥·코스피 등 종목을 120일선·200일선 이동평균선과 금 겹치기로 보는 트레이딩뷰 차트">
+<meta property="og:title" content="BTC · GOLD 차트 — 120일선 / 200일선">
+<meta property="og:description" content="비트코인·금·나스닥·코스피 등 종목을 120일선·200일선과 금 겹치기로 한 화면에서">
+<meta property="og:type" content="website">
+<style>
+  :root{
+    --bg:#0b0e11;
+    --panel:#12161c;
+    --panel-2:#171d25;
+    --line:#232b36;
+    --text:#e8edf3;
+    --muted:#8b97a6;
+    --up:#26a69a;
+    --down:#ef5350;
+    --ma120:#4a9eff;
+    --ma200:#ff9f43;
+    --gold:#e8c25a;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    margin:0;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Pretendard",system-ui,sans-serif;
+    display:flex;flex-direction:column;min-height:100dvh;
+  }
+  header{
+    padding:14px 16px 10px;border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg,#12161c 0%,#0b0e11 100%);
+    position:sticky;top:0;z-index:10;
+  }
+  .top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .brand{font-size:15px;font-weight:800;letter-spacing:-.3px}
+  .brand span{color:var(--gold)}
+  .live{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);
+    border:1px solid var(--line);border-radius:999px;padding:3px 8px;background:var(--panel)}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--up);box-shadow:0 0 6px var(--up)}
+  .current{margin-left:auto;font-size:12px;color:var(--muted);white-space:nowrap}
+  .current b{color:var(--text);font-weight:700}
+
+  /* quick symbol bar */
+  .quickbar{
+    display:flex;gap:6px;overflow-x:auto;padding:10px 0 2px;margin:0 -16px;padding-left:16px;padding-right:16px;
+    scrollbar-width:none;-webkit-overflow-scrolling:touch;
+  }
+  .quickbar::-webkit-scrollbar{display:none}
+  .chip{
+    flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;
+    padding:8px 12px;border-radius:10px;border:1px solid var(--line);
+    background:var(--panel);color:var(--text);font-size:13px;font-weight:600;
+    cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s,transform .08s;
+  }
+  .chip:active{transform:scale(.97)}
+  .chip .tick{width:6px;height:6px;border-radius:2px;background:var(--muted)}
+  .chip[data-symbol="TVC:GOLD"] .tick{background:var(--gold)}
+  .chip.active{background:#1d2733;border-color:#39506b;box-shadow:inset 0 0 0 1px #2b3d52}
+  .chip.active .tick{background:var(--up)}
+
+  .tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .toggle{
+    display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;
+    border:1px solid var(--line);background:var(--panel);cursor:pointer;font-size:13px;font-weight:600;color:var(--text);
+  }
+  .toggle .sw{position:relative;width:34px;height:19px;border-radius:999px;background:#2b3644;transition:background .18s}
+  .toggle .sw::after{content:"";position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;background:#8b97a6;transition:transform .18s,background .18s}
+  .toggle.on .sw{background:rgba(232,194,90,.35)}
+  .toggle.on .sw::after{transform:translateX(15px);background:var(--gold)}
+  .toggle .lbl{color:var(--muted);font-weight:500}
+  .toggle.on .lbl{color:var(--gold)}
+
+  form.search{display:flex;align-items:center;gap:0;flex:1 1 210px;min-width:180px}
+  form.search input{
+    flex:1;min-width:0;padding:9px 11px;border-radius:10px 0 0 10px;border:1px solid var(--line);border-right:0;
+    background:var(--panel-2);color:var(--text);font-size:13px;font-family:inherit;outline:none;
+  }
+  form.search input::placeholder{color:#5f6b7a}
+  form.search input:focus{border-color:#39506b}
+  form.search button{
+    padding:9px 13px;border-radius:0 10px 10px 0;border:1px solid var(--line);
+    background:#1d2733;color:var(--text);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;
+  }
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:9px;font-size:12px;color:var(--muted)}
+  .legend i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle}
+  .legend .m120 i{background:var(--ma120)}
+  .legend .m200 i{background:var(--ma200)}
+  .legend .g i{background:var(--gold)}
+  .legend .g{opacity:.45}
+  .legend .g.on{opacity:1}
+
+  main{flex:1;min-height:0;display:flex;flex-direction:column;padding:10px 12px 12px}
+  #chart{flex:1;min-height:420px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--panel);position:relative}
+  #chart iframe{display:block!important;width:100%!important;height:100%!important}
+  .tv-embed-widget{height:100%}
+  .note{margin:9px 2px 0;font-size:11px;line-height:1.55;color:#6f7b89}
+  .note b{color:#93a0b0;font-weight:600}
+  @media (max-width:560px){
+    header{padding:12px 12px 8px}
+    .quickbar{margin:0 -12px;padding-left:12px;padding-right:12px}
+    main{padding:8px 8px 10px}
+    #chart{min-height:56dvh;border-radius:12px}
+    .current{width:100%;margin-left:0;order:3}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <div class="brand">BTC <span>·</span> GOLD 차트</div>
+    <div class="live"><span class="dot"></span>TradingView 실시간</div>
+    <div class="current">현재 <b id="curName">비트코인</b> <span id="curSym" style="opacity:.7">BITSTAMP:BTCUSD</span></div>
+  </div>
+
+  <div class="quickbar" id="quickbar">
+    <button class="chip active" data-symbol="BITSTAMP:BTCUSD" data-name="비트코인"><span class="tick"></span>비트코인 BTC</button>
+    <button class="chip" data-symbol="TVC:GOLD" data-name="금"><span class="tick"></span>금 GOLD</button>
+    <button class="chip" data-symbol="NASDAQ:NDX" data-name="나스닥"><span class="tick"></span>나스닥 NDX</button>
+    <button class="chip" data-symbol="TVC:SPX" data-name="S&amp;P 500"><span class="tick"></span>S&amp;P 500</button>
+    <button class="chip" data-symbol="KRX:KOSPI" data-name="코스피"><span class="tick"></span>코스피 KOSPI</button>
+    <button class="chip" data-symbol="NASDAQ:NVDA" data-name="엔비디아"><span class="tick"></span>엔비디아 NVDA</button>
+    <button class="chip" data-symbol="NASDAQ:TSLA" data-name="테슬라"><span class="tick"></span>테슬라 TSLA</button>
+    <button class="chip" data-symbol="FX_IDC:USDKRW" data-name="달러/원"><span class="tick"></span>달러/원 USDKRW</button>
+  </div>
+
+  <div class="tools">
+    <div class="toggle on" id="goldToggle" role="switch" aria-checked="true" tabindex="0">
+      <span class="sw"></span><span>금 겹치기</span><span class="lbl" id="goldState">ON</span>
+    </div>
+    <form class="search" id="searchForm" autocomplete="off">
+      <input id="symbolInput" type="text" placeholder="심볼 입력 (예: NASDAQ:TSLA, KRX:005930)" aria-label="심볼 입력">
+      <button type="submit">보기</button>
+    </form>
+  </div>
+
+  <div class="legend">
+    <span class="m120"><i></i>MA 120일선</span>
+    <span class="m200"><i></i>MA 200일선</span>
+    <span class="g" id="goldLegend"><i></i>금(TVC:GOLD) 겹치기</span>
+  </div>
+</header>
+
+<main>
+  <div id="chart"></div>
+  <p class="note">
+    <b>120일선 · 200일선</b>은 모든 종목에서 자동으로 그려집니다. <b>금 겹치기</b>는 BTC·주식·지수가 금(TVC:GOLD)과 같은 출발점에서 움직인 정도를 겹쳐 보여줍니다.
+    일봉(1D) 기준이며, 차트를 확대·축소하거나 다른 종목을 눌러도 이평선은 유지됩니다.
+  </p>
+</main>
+
+<script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+<script type="text/javascript">
+(function(){
+  var GOLD = "TVC:GOLD";
+  var state = { symbol: "BITSTAMP:BTCUSD", name: "비트코인", compare: true };
+
+  var chartEl   = document.getElementById("chart");
+  var curName   = document.getElementById("curName");
+  var curSym    = document.getElementById("curSym");
+  var goldToggle= document.getElementById("goldToggle");
+  var goldState = document.getElementById("goldState");
+  var goldLegend= document.getElementById("goldLegend");
+  var bar       = document.getElementById("quickbar");
+  var form      = document.getElementById("searchForm");
+  var input     = document.getElementById("symbolInput");
+  var uid = 0;
+
+  function studies(){
+    return [
+      { id: "MASimple@tv-basicstudies", inputs: { length: 120 } },
+      { id: "MASimple@tv-basicstudies", inputs: { length: 200 } }
+    ];
+  }
+
+  var studiesOverrides = {
+    "moving average.ma.color": "#4a9eff",
+    "moving average.ma.linewidth": 2,
+    "moving average.ma.plottype": "line",
+    "moving average_1.ma.color": "#ff9f43",
+    "moving average_1.ma.linewidth": 2,
+    "moving average_1.ma.plottype": "line"
+  };
+
+  function render(){
+    uid++;
+    var id = "tv_chart_" + uid;
+    chartEl.innerHTML = '<div id="' + id + '" style="height:100%;width:100%"></div>';
+    var cfg = {
+      container_id: id,
+      autosize: true,
+      symbol: state.symbol,
+      interval: "D",
+      timezone: "Asia/Seoul",
+      theme: "dark",
+      style: "1",
+      locale: "ko",
+      toolbar_bg: "#12161c",
+      backgroundColor: "rgba(18,22,28,1)",
+      gridColor: "rgba(35,43,54,0.6)",
+      enable_publishing: false,
+      withdateranges: true,
+      hide_side_toolbar: false,
+      allow_symbol_change: true,
+      details: false,
+      hotlist: false,
+      calendar: false,
+      save_image: true,
+      studies: studies(),
+      studies_overrides: studiesOverrides
+    };
+    if (state.compare && state.symbol !== GOLD) {
+      cfg.compareSymbols = [{ symbol: GOLD, symbolLabel: "금" }];
+    }
+    try {
+      new TradingView.widget(cfg);
+    } catch (e) {
+      chartEl.innerHTML = '<div style="padding:24px;color:#8b97a6;font-size:13px">차트를 불러오지 못했습니다. 잠시 후 새로고침해 주세요.</div>';
+    }
+    curName.textContent = state.name;
+    curSym.textContent = state.symbol;
+    Array.prototype.forEach.call(bar.querySelectorAll(".chip"), function(c){
+      c.classList.toggle("active", c.getAttribute("data-symbol") === state.symbol);
+    });
+  }
+
+  function setGoldUI(){
+    goldToggle.classList.toggle("on", state.compare);
+    goldToggle.setAttribute("aria-checked", state.compare ? "true" : "false");
+    goldState.textContent = state.compare ? "ON" : "OFF";
+    goldLegend.classList.toggle("on", state.compare);
+  }
+
+  function pick(symbol, name){
+    state.symbol = symbol;
+    state.name = name || symbol;
+    render();
+  }
+
+  bar.addEventListener("click", function(ev){
+    var chip = ev.target.closest ? ev.target.closest(".chip") : null;
+    if (!chip) return;
+    pick(chip.getAttribute("data-symbol"), chip.getAttribute("data-name"));
+  });
+
+  function toggleGold(){
+    state.compare = !state.compare;
+    setGoldUI();
+    render();
+  }
+  goldToggle.addEventListener("click", toggleGold);
+  goldToggle.addEventListener("keydown", function(ev){
+    if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); toggleGold(); }
+  });
+
+  form.addEventListener("submit", function(ev){
+    ev.preventDefault();
+    var v = input.value.trim().toUpperCase();
+    if (!v) return;
+    if (v.indexOf(":") === -1) {
+      // 거래소 접두어 없이 넣은 경우 흔한 조합으로 보정
+      var map = { "BTCUSD":"BITSTAMP:BTCUSD", "BTC":"BITSTAMP:BTCUSD", "GOLD":"TVC:GOLD",
+        "XAUUSD":"TVC:GOLD", "NDX":"NASDAQ:NDX", "SPX":"TVC:SPX", "KOSPI":"KRX:KOSPI",
+        "USDKRW":"FX_IDC:USDKRW", "NVDA":"NASDAQ:NVDA", "TSLA":"NASDAQ:TSLA" };
+      v = map[v] || v;
+    }
+    input.value = "";
+    pick(v, v);
+  });
+
+  setGoldUI();
+  render();
+})();
+</script>
+</body>
+</html>
