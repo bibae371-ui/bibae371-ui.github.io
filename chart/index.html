@@ -234,6 +234,16 @@
       studiesConf = ["MASimple@tv-basicstudies", "MASimple@tv-basicstudies"];
     } else if (ENGINE === "m9") {
       studiesConf = ["STD;MASimple;MASimple", "STD;MASimple;MASimple"];
+    } else if (ENGINE === "m10") {
+      studiesConf = [{ id: "MASimple@tv-basicstudies", inputs: { length: 120 },
+                       overrides: { "plot.color": "#4a9eff" } },
+                     { id: "MASimple@tv-basicstudies", inputs: { length: 200 },
+                       overrides: { "plot.color": "#ff9f43" } }];
+    } else if (ENGINE === "m11") {
+      studiesConf = [{ id: "MASimple@tv-basicstudies", inputs: { length: 120 } },
+                     { id: "MASma@tv-basicstudies", inputs: { length: 200 } }];
+      ov = { "moving average.ma.color": "#4a9eff", "moving average.ma.linewidth": 2,
+             "simple moving average.ma.color": "#ff9f43", "simple moving average.ma.linewidth": 2 };
     }
 
     var cfg = {
