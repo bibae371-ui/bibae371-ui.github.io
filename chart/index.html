@@ -212,10 +212,20 @@
     wrap.appendChild(inner);
     chartEl.appendChild(wrap);
 
-    var studiesConf = (ENGINE === "m2")
-      ? ["MASimple@tv-basicstudies", "MASimple@tv-basicstudies"]
-      : [{ id: "MASimple@tv-basicstudies", inputs: { length: 120 } },
-         { id: "MASimple@tv-basicstudies", inputs: { length: 200 } }];
+    var studiesConf;
+    var ov = studiesOverrides;
+    if (ENGINE === "m1") {
+      studiesConf = [{ id: "MASimple@tv-basicstudies", inputs: { length: 120 } },
+                     { id: "MASimple@tv-basicstudies", inputs: { length: 200 } }];
+    } else if (ENGINE === "m2") {
+      studiesConf = ["MASimple@tv-basicstudies", "MASimple@tv-basicstudies"];
+      ov = Object.assign({}, studiesOverrides,
+        { "moving average.length": 120, "moving average_1.length": 200 });
+    } else {
+      studiesConf = ["STD;MASimple", "STD;MASimple"];
+      ov = Object.assign({}, studiesOverrides,
+        { "moving average.length": 120, "moving average_1.length": 200 });
+    }
 
     var cfg = {
       autosize: true,
@@ -239,7 +249,7 @@
       calendar: false,
       watchlist: [],
       studies: studiesConf,
-      studies_overrides: studiesOverrides,
+      studies_overrides: ov,
       support_host: "https://www.tradingview.com"
     };
     if (state.compare && state.symbol !== GOLD) {
@@ -280,7 +290,9 @@
       studies_overrides: studiesOverrides
     };
     if (state.compare && state.symbol !== GOLD) {
-      cfg.compareSymbols = [{ symbol: GOLD, symbolLabel: "금" }];
+      cfg.compareSymbols = (ENGINE === "l2")
+        ? ["TVC:GOLD"]
+        : [{ symbol: GOLD, symbolLabel: "금", position: "SameScale" }];
     }
     try { new TradingView.widget(cfg); }
     catch (e) {
