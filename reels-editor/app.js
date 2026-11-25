@@ -40,7 +40,7 @@ const S = {
   ready: false
 };
 
-const EXPORT = { resolve: null, cancel: false, rec: null, canvas: null, ctx: null, w: 0, h: 0, chunks: [], blobUrl: null };
+const EXPORT = { resolve: null, cancel: false, rec: null, w: 0, h: 0, scale: 1, chunks: [], blobUrl: null };
 
 const canvas = $('#c');
 const ctx = canvas.getContext('2d', { alpha: false });
@@ -483,7 +483,9 @@ function drawEmpty(c) {
 }
 
 function draw(t) {
-  const total = totalDur();
+  const sc = EXPORT.scale || 1;
+  if (sc !== 1) ctx.setTransform(sc, 0, 0, sc, 0, 0);
+  else ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.save();
   ctx.fillStyle = '#000';
   ctx.fillRect(0, 0, W, H);
@@ -515,11 +517,6 @@ function draw(t) {
     }
   }
   ctx.restore();
-
-  // 내보내기용 해상도 캔버스가 있으면 복사
-  if (EXPORT.canvas && EXPORT.ctx) {
-    EXPORT.ctx.drawImage(canvas, 0, 0, EXPORT.w, EXPORT.h);
-  }
 }
 
 /* ---------------------------------------------------------
@@ -595,6 +592,7 @@ function stopAtEnd() {
 
 function loop(ts) {
   if (!S.playing) return;
+  if (S.exporting && EXPORT.cancel) { stopAtEnd(); return; }
   const total = totalDur();
   const dt = Math.min(0.12, Math.max(0, (ts - lastTs) / 1000));
   lastTs = ts;
@@ -1231,6 +1229,18 @@ function ensureAudioGraph() {
       if (!AC) return false;
       actx = new AC();
       audioDest = actx.createMediaStreamDestination();
+      // 무음 소스를 계속 흘려보낸다: 오디오 트랙이 비면 일부 브라우저에서 MP4에
+      // 프레임이 앞부분만 담기는 문제가 있어 항상 오디오 데이터가 있게 한다.
+      try {
+        const silence = actx.createConstantSource();
+        silence.offset.value = 0;
+        const g = actx.createGain();
+        g.gain.value = 0;
+        silence.connect(g);
+        g.connect(audioDest);
+        silence.start();
+        window.__silence = silence;
+      } catch (e) { }
     }
     if (actx.state === 'suspended') actx.resume();
     for (const c of S.clips) {
@@ -1339,12 +1349,12 @@ async function startExport() {
   EXPORT.chunks = [];
   document.body.classList.add('busy');
 
-  // 내보내기 해상도 캔버스
+  // 보이는 캔버스를 내보내기 해상도로 바꿔 그대로 캡처한다
+  // (DOM에 붙지 않은 캔버스는 프레임 공급이 멈추는 브라우저가 있음)
   const w = S.res, h = Math.round(w * 16 / 9);
   EXPORT.w = w; EXPORT.h = h;
-  EXPORT.canvas = document.createElement('canvas');
-  EXPORT.canvas.width = w; EXPORT.canvas.height = h;
-  EXPORT.ctx = EXPORT.canvas.getContext('2d');
+  EXPORT.scale = w / W;
+  canvas.width = w; canvas.height = h;
 
   showOverlay(true);
   setProgress(0, '준비 중...');
@@ -1352,7 +1362,7 @@ async function startExport() {
   await prepVideos();
   draw(0);
 
-  const vStream = EXPORT.canvas.captureStream(S.fps);
+  const vStream = canvas.captureStream(S.fps);
   const tracks = [...vStream.getVideoTracks()];
   if (audioDest && audioDest.stream.getAudioTracks().length) {
     tracks.push(...audioDest.stream.getAudioTracks());
@@ -1401,7 +1411,10 @@ async function startExport() {
 
 function cleanupExport() {
   S.exporting = false;
-  EXPORT.canvas = null; EXPORT.ctx = null; EXPORT.rec = null; EXPORT.resolve = null;
+  EXPORT.rec = null; EXPORT.resolve = null; EXPORT.scale = 1;
+  canvas.width = W; canvas.height = H;
+  fitCanvas();
+  draw(S.t);
   document.body.classList.remove('busy');
   showOverlay(false);
 }
@@ -1450,7 +1463,7 @@ async function showResult(blob, mime) {
 
 $('#btnExport').onclick = startExport;
 $('#btnExportTop').onclick = () => { switchTab('export'); startExport(); };
-$('#exCancel').onclick = () => { EXPORT.cancel = true; if (S.playing) { S.t = totalDur() - 0.001; } };
+$('#exCancel').onclick = () => { EXPORT.cancel = true; };
 
 $('#resSeg').addEventListener('click', e => {
   const b = e.target.closest('button[data-res]');
