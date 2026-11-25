@@ -139,6 +139,17 @@ async function makeClipFromFile(file) {
       toast('이 영상은 브라우저에서 재생할 수 없습니다. MP4(H.264)로 변환해 주세요.', 4200);
       return null;
     }
+    // 일부 WebM/스트림 파일은 duration이 Infinity로 나온다. 끝으로 시킹해 길이를 확정한다.
+    if (!isFinite(v.duration) || v.duration <= 0) {
+      await new Promise(res => {
+        let done = false;
+        const fin = () => { if (done) return; done = true; v.removeEventListener('seeked', fin); res(); };
+        v.addEventListener('seeked', fin);
+        try { v.currentTime = 1e6; } catch (e) { fin(); }
+        setTimeout(fin, 1800);
+      });
+      try { v.currentTime = 0; } catch (e) { }
+    }
     const d = isFinite(v.duration) && v.duration > 0 ? v.duration : 5;
     const clip = { id: uid(), kind: 'video', name: file.name, url, el: v, dur: d, trimStart: 0, trimEnd: d, volume: 1, thumb: null };
     grabThumb(clip);
