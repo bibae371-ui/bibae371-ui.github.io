@@ -40,7 +40,7 @@ const S = {
   ready: false
 };
 
-const EXPORT = { resolve: null, cancel: false, rec: null, w: 0, h: 0, scale: 1, chunks: [], blobUrl: null };
+const EXPORT = { resolve: null, cancel: false, rec: null, w: 0, h: 0, scale: 1, requestFrame: null, chunks: [], blobUrl: null };
 
 const canvas = $('#c');
 const ctx = canvas.getContext('2d', { alpha: false });
@@ -528,6 +528,9 @@ function draw(t) {
     }
   }
   ctx.restore();
+
+  // 수동 캡처 모드: 그린 프레임을 직접 스트림에 밀어넣는다 (합성기 스로틀 영향 없음)
+  if (EXPORT.requestFrame) EXPORT.requestFrame();
 }
 
 /* ---------------------------------------------------------
@@ -1373,7 +1376,19 @@ async function startExport() {
   await prepVideos();
   draw(0);
 
-  const vStream = canvas.captureStream(S.fps);
+  let vStream;
+  EXPORT.requestFrame = null;
+  if (typeof CanvasCaptureMediaStreamTrack !== 'undefined') {
+    vStream = canvas.captureStream(0);
+    const vt = vStream.getVideoTracks()[0];
+    if (vt && typeof vt.requestFrame === 'function') {
+      EXPORT.requestFrame = () => { try { vt.requestFrame(); } catch (e) { } };
+    } else {
+      vStream = canvas.captureStream(S.fps);
+    }
+  } else {
+    vStream = canvas.captureStream(S.fps);
+  }
   const tracks = [...vStream.getVideoTracks()];
   if (audioDest && audioDest.stream.getAudioTracks().length) {
     tracks.push(...audioDest.stream.getAudioTracks());
@@ -1422,7 +1437,7 @@ async function startExport() {
 
 function cleanupExport() {
   S.exporting = false;
-  EXPORT.rec = null; EXPORT.resolve = null; EXPORT.scale = 1;
+  EXPORT.rec = null; EXPORT.resolve = null; EXPORT.scale = 1; EXPORT.requestFrame = null;
   canvas.width = W; canvas.height = H;
   fitCanvas();
   draw(S.t);
