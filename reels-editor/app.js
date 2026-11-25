@@ -1376,18 +1376,12 @@ async function startExport() {
   await prepVideos();
   draw(0);
 
-  let vStream;
+  const vStream = canvas.captureStream(S.fps);
   EXPORT.requestFrame = null;
-  if (typeof CanvasCaptureMediaStreamTrack !== 'undefined') {
-    vStream = canvas.captureStream(0);
-    const vt = vStream.getVideoTracks()[0];
-    if (vt && typeof vt.requestFrame === 'function') {
-      EXPORT.requestFrame = () => { try { vt.requestFrame(); } catch (e) { } };
-    } else {
-      vStream = canvas.captureStream(S.fps);
-    }
-  } else {
-    vStream = canvas.captureStream(S.fps);
+  const vt = vStream.getVideoTracks()[0];
+  if (vt && typeof vt.requestFrame === 'function') {
+    // 자동 캡처에 더해 매 프레임을 명시적으로 밀어 넣어 프레임 누락을 줄인다
+    EXPORT.requestFrame = () => { try { vt.requestFrame(); } catch (e) { } };
   }
   const tracks = [...vStream.getVideoTracks()];
   if (audioDest && audioDest.stream.getAudioTracks().length) {
@@ -1484,6 +1478,16 @@ async function showResult(blob, mime) {
     <small>내려받은 파일을 인스타그램 앱에서 릴스로 업로드하세요.<br>아이폰은 사진 앱에 저장한 뒤 업로드하면 됩니다.</small>
     ${warn}
   `;
+  const vid = box.querySelector('video');
+  const expected = totalDur();
+  vid.addEventListener('loadedmetadata', () => {
+    if (isFinite(vid.duration) && vid.duration < expected * 0.9) {
+      const el = document.createElement('div');
+      el.className = 'warnline';
+      el.textContent = `녹화가 중간에 끊겼습니다(${fmtTime(vid.duration)} / ${fmtTime(expected)}). 탭을 화면에 띄운 채로 다시 내보내 주세요.`;
+      box.appendChild(el);
+    }
+  });
   toast('영상이 완성됐습니다. 내려받기 버튼을 누르세요.', 3600);
 }
 
