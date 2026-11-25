@@ -212,19 +212,21 @@
     wrap.appendChild(inner);
     chartEl.appendChild(wrap);
 
-    var studiesConf;
-    var ov = studiesOverrides;
+    var studiesConf = null, ov = null;
     if (ENGINE === "m1") {
       studiesConf = [{ id: "MASimple@tv-basicstudies", inputs: { length: 120 } },
                      { id: "MASimple@tv-basicstudies", inputs: { length: 200 } }];
+      ov = studiesOverrides;
     } else if (ENGINE === "m2") {
       studiesConf = ["MASimple@tv-basicstudies", "MASimple@tv-basicstudies"];
       ov = Object.assign({}, studiesOverrides,
         { "moving average.length": 120, "moving average_1.length": 200 });
-    } else {
+    } else if (ENGINE === "m3") {
       studiesConf = ["STD;MASimple", "STD;MASimple"];
       ov = Object.assign({}, studiesOverrides,
         { "moving average.length": 120, "moving average_1.length": 200 });
+    } else if (ENGINE === "m5") {
+      studiesConf = ["STD;MASimple", "STD;MASimple"];
     }
 
     var cfg = {
@@ -248,10 +250,10 @@
       hotlist: false,
       calendar: false,
       watchlist: [],
-      studies: studiesConf,
-      studies_overrides: ov,
       support_host: "https://www.tradingview.com"
     };
+    if (studiesConf) cfg.studies = studiesConf;
+    if (ov) cfg.studies_overrides = ov;
     if (state.compare && state.symbol !== GOLD) {
       cfg.compareSymbols = [{ symbol: GOLD, position: CMPPOS }];
     }
