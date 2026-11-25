@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>릴스 스튜디오 · 9:16 인스타 릴스 편집기</title>
+<meta name="description" content="인스타 릴스(9:16) 전용 웹 영상 편집기. 컷 편집, 자막, 프리셋, 영상 내보내기까지 브라우저에서 바로.">
+<meta name="theme-color" content="#0a0c11">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Do+Hyeon&family=Gowun+Dodum&family=Jua&family=Nanum+Gothic:wght@400;700;800&family=Noto+Sans+KR:wght@400;500;700;900&family=Noto+Serif+KR:wght@600;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css">
+<link rel="stylesheet" href="styles.css">
+<style>
+@font-face{font-family:'Gmarket Sans';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff') format('woff');font-weight:700;font-display:swap}
+@font-face{font-family:'Gmarket Sans';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff') format('woff');font-weight:500;font-display:swap}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="logo">R</span>
+    <div>
+      <b>릴스 스튜디오</b>
+      <small>9:16 인스타 릴스 편집기</small>
+    </div>
+  </div>
+
+  <div class="presets">
+    <button class="preset red" data-preset="qupas"><span>쿠파스 최저가</span><em>릴스 세팅</em></button>
+    <button class="preset yellow" data-preset="dangn"><span>당근 부업</span><em>릴스 세팅</em></button>
+  </div>
+
+  <div class="top-actions">
+    <button id="btnGuides" class="ghost sm" title="안전영역 가이드">가이드</button>
+    <button id="btnReset" class="ghost sm">초기화</button>
+    <button id="btnExportTop" class="primary">영상 내보내기</button>
+  </div>
+</header>
+
+<main>
+  <section class="stage">
+    <div class="stage-inner">
+      <div class="canvas-wrap" id="canvasWrap">
+        <canvas id="c" width="1080" height="1920"></canvas>
+        <div class="badge9x16">9:16 · 1080×1920</div>
+      </div>
+      <div class="playbar">
+        <button id="btnPlay" class="round" title="재생/정지 (스페이스)">▶</button>
+        <span class="tm" id="timeNow">0:00.0</span>
+        <input id="seek" type="range" min="0" max="1000" value="0" step="1" aria-label="재생 위치">
+        <span class="tm dim" id="timeTotal">0:00.0</span>
+        <button id="btnMute" class="round ghost" title="소리 켜기/끄기">🔊</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="side">
+    <nav class="tabs" id="tabs">
+      <button data-tab="clips" class="on">클립</button>
+      <button data-tab="texts">자막</button>
+      <button data-tab="export">내보내기</button>
+    </nav>
+
+    <div class="panels">
+      <!-- 클립 -->
+      <div class="panel on" data-panel="clips">
+        <div class="row">
+          <label class="addbtn big">영상·이미지 추가
+            <input type="file" id="fileInput" accept="video/mp4,video/quicktime,video/webm,video/*,image/*" multiple hidden>
+          </label>
+        </div>
+        <div class="row gap">
+          <button class="addbtn" id="addColor">단색 배경</button>
+          <button class="addbtn" id="addGrad">그라데이션</button>
+        </div>
+        <div class="row gap2 colorrow">
+          <label class="mini">색1 <input type="color" id="c1" value="#101014"></label>
+          <label class="mini">색2 <input type="color" id="c2" value="#ff2d55"></label>
+        </div>
+        <div class="list" id="clipList"></div>
+        <p class="hint">영상은 브라우저 안에서만 처리됩니다. 아이폰은 HEVC(.mov)보다 H.264 MP4가 안전합니다.</p>
+      </div>
+
+      <!-- 자막 -->
+      <div class="panel" data-panel="texts">
+        <div class="row gap">
+          <button class="primary wide" id="addText">+ 자막 추가 (현재 위치)</button>
+          <button class="ghost sm" id="btnHook">후킹 배지</button>
+        </div>
+        <div class="list" id="textList"></div>
+
+        <div class="editor hidden" id="textEditor">
+          <div class="ed-head">
+            <b>자막 편집</b>
+            <div>
+              <button id="txDup" class="ghost xs">복제</button>
+              <button id="txDel" class="danger xs">삭제</button>
+            </div>
+          </div>
+
+          <textarea id="txText" data-k="text" rows="3" placeholder="자막 내용 (줄바꿈으로 여러 줄)"></textarea>
+
+          <div class="grp">
+            <div class="ghead">시간</div>
+            <label class="sl">시작 <input type="range" data-k="start" min="0" max="60" step="0.1"><span class="val" data-v="start"></span></label>
+            <label class="sl">끝 <input type="range" data-k="end" min="0" max="60" step="0.1"><span class="val" data-v="end"></span></label>
+            <div class="row gap">
+              <button class="ghost xs" id="txHere">현재 위치에서 3초</button>
+              <button class="ghost xs" id="txFull">전체 길이</button>
+            </div>
+          </div>
+
+          <details class="grp" open>
+            <summary class="ghead">글꼴</summary>
+            <select data-k="font" class="full">
+              <option value="'Pretendard', sans-serif">Pretendard</option>
+              <option value="'Black Han Sans', sans-serif">Black Han Sans (검정고딕)</option>
+              <option value="'Noto Sans KR', sans-serif">Noto Sans KR</option>
+              <option value="'Gmarket Sans', sans-serif">Gmarket Sans</option>
+              <option value="'Nanum Gothic', sans-serif">나눔고딕</option>
+              <option value="'Do Hyeon', sans-serif">도현 (Do Hyeon)</option>
+              <option value="'Jua', sans-serif">주아 (Jua)</option>
+              <option value="'Gowun Dodum', sans-serif">고운돋움</option>
+              <option value="'Noto Serif KR', serif">Noto Serif KR</option>
+            </select>
+            <div class="two">
+              <label class="sl">크기 <input type="range" data-k="size" min="24" max="180" step="2"><span class="val" data-v="size"></span></label>
+              <label>굵기
+                <select data-k="weight">
+                  <option value="400">보통 400</option>
+                  <option value="500">중간 500</option>
+                  <option value="700">굵게 700</option>
+                  <option value="800">매우 800</option>
+                  <option value="900">최대 900</option>
+                </select>
+              </label>
+            </div>
+            <div class="two">
+              <label class="mini">글자색 <input type="color" data-k="color"></label>
+              <label class="sl">줄간격 <input type="range" data-k="lineHeight" min="0.9" max="2" step="0.05"><span class="val" data-v="lineHeight"></span></label>
+            </div>
+            <div class="two">
+              <label>정렬
+                <select data-k="align">
+                  <option value="center">가운데</option>
+                  <option value="left">왼쪽</option>
+                  <option value="right">오른쪽</option>
+                </select>
+              </label>
+              <label class="sl">가로폭 <input type="range" data-k="maxW" min="0.4" max="1" step="0.02"><span class="val" data-v="maxW"></span></label>
+            </div>
+          </details>
+
+          <details class="grp">
+            <summary class="ghead">위치</summary>
+            <div class="seg" id="posSeg">
+              <button data-pos="top">상단</button>
+              <button data-pos="mid">중앙</button>
+              <button data-pos="bottom">하단</button>
+            </div>
+            <label class="sl">가로 <input type="range" data-k="x" min="0" max="1" step="0.005"><span class="val" data-v="x"></span></label>
+            <label class="sl">세로 <input type="range" data-k="y" min="0" max="1" step="0.005"><span class="val" data-v="y"></span></label>
+            <p class="hint">미리보기에서 자막을 직접 끌어서 옮길 수 있습니다.</p>
+          </details>
+
+          <details class="grp">
+            <summary class="ghead"><label class="chk" onclick="event.stopPropagation()"><input type="checkbox" data-k="bg.on"> 배경 박스 (Pill)</label></summary>
+            <div class="two">
+              <label class="mini">배경색 <input type="color" data-k="bg.color"></label>
+              <label class="sl">투명도 <input type="range" data-k="bg.alpha" min="0" max="1" step="0.02"><span class="val" data-v="bg.alpha"></span></label>
+            </div>
+            <div class="two">
+              <label class="sl">둥글기 <input type="range" data-k="bg.radius" min="0" max="90" step="1"><span class="val" data-v="bg.radius"></span></label>
+              <label class="sl">여백 <input type="range" data-k="bg.padX" min="0" max="70" step="1"><span class="val" data-v="bg.padX"></span></label>
+            </div>
+          </details>
+
+          <details class="grp">
+            <summary class="ghead">테두리 (Stroke)</summary>
+            <div class="two">
+              <label class="mini">테두리색 <input type="color" data-k="stroke.color"></label>
+              <label class="sl">두께 <input type="range" data-k="stroke.width" min="0" max="24" step="1"><span class="val" data-v="stroke.width"></span></label>
+            </div>
+          </details>
+
+          <details class="grp">
+            <summary class="ghead"><label class="chk" onclick="event.stopPropagation()"><input type="checkbox" data-k="shadow.on"> 그림자 (Shadow)</label></summary>
+            <div class="two">
+              <label class="mini">그림자색 <input type="color" data-k="shadow.color"></label>
+              <label class="sl">블러 <input type="range" data-k="shadow.blur" min="0" max="60" step="1"><span class="val" data-v="shadow.blur"></span></label>
+            </div>
+            <div class="two">
+              <label class="sl">좌우 <input type="range" data-k="shadow.x" min="-40" max="40" step="1"><span class="val" data-v="shadow.x"></span></label>
+              <label class="sl">상하 <input type="range" data-k="shadow.y" min="-40" max="40" step="1"><span class="val" data-v="shadow.y"></span></label>
+            </div>
+          </details>
+        </div>
+      </div>
+
+      <!-- 내보내기 -->
+      <div class="panel" data-panel="export">
+        <div class="exp-sum" id="expSum"></div>
+
+        <div class="grp">
+          <div class="ghead">화질</div>
+          <div class="seg" id="resSeg">
+            <button data-res="1080" class="on">1080p</button>
+            <button data-res="720">720p</button>
+          </div>
+          <div class="two">
+            <label>프레임
+              <select id="fpsSel">
+                <option value="30" selected>30fps</option>
+                <option value="24">24fps</option>
+                <option value="60">60fps (무거움)</option>
+              </select>
+            </label>
+            <label>형식
+              <select id="fmtSel">
+                <option value="auto" selected>자동 (MP4 우선)</option>
+                <option value="mp4">MP4</option>
+                <option value="webm">WebM</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <button id="btnExport" class="primary big wide">영상으로 내보내기</button>
+        <div class="exp-note">
+          <b>녹화 방식 안내</b>
+          <ul>
+            <li>내보내기는 <b>편집 길이만큼 실시간</b>으로 진행됩니다. 탭을 벗어나거나 화면을 끄면 중단될 수 있습니다.</li>
+            <li>MP4를 지원하는 브라우저(최신 Chrome·Safari)는 MP4로, 그 외에는 WebM으로 저장됩니다.</li>
+            <li><b>아이폰:</b> Safari에서 MP4 저장 후 사진 앱에 저장하세요. WebM은 재생이 안 될 수 있습니다.</li>
+            <li><b>안드로이드:</b> 다운로드 폴더에 저장되고 갤러리에서 바로 확인할 수 있습니다.</li>
+            <li>영상·음성은 전부 기기 안에서만 처리되며 어디에도 업로드되지 않습니다.</li>
+          </ul>
+        </div>
+        <div class="exp-result hidden" id="expResult"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<section class="timeline">
+  <div class="tl-head">
+    <b>타임라인</b>
+    <span class="tl-info" id="tlInfo">클립을 추가하세요</span>
+    <div class="tl-zoom">
+      <button id="zoomOut" class="ghost xs">−</button>
+      <button id="zoomIn" class="ghost xs">+</button>
+    </div>
+  </div>
+  <div class="tl-scroll">
+    <div class="tl-body" id="tlBody">
+      <div class="tl-lanes" id="tlLanes">
+        <div class="tl-lane" id="laneClips"></div>
+        <div class="tl-lane thin" id="laneTexts"></div>
+        <div class="tl-playhead" id="playhead"><i></i></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="overlay hidden" id="exportOverlay">
+  <div class="dialog">
+    <b id="exTitle">영상 만드는 중</b>
+    <div class="bar"><i id="exBar"></i></div>
+    <p id="exSub">0%</p>
+    <button id="exCancel" class="ghost sm">취소</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
