@@ -3,8 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0e11">
 <title>BTC · GOLD 차트 — 120일선 / 200일선</title>
-<meta name="description" content="비트코인·금·나스닥·S&amp;P500·코스피·엔비디아·테슬라·달러원을 120일선·200일선과 금 겹치기로 한 화면에서 보는 트레이딩뷰 차트">
+<meta name="description" content="비트코인·금·나스닥·S&amp;P500·한국(EWY)·엔비디아·테슬라·달러원을 120일선·200일선과 금 겹치기로 한 화면에서 보는 트레이딩뷰 차트">
 <meta property="og:title" content="BTC · GOLD 차트 — 120일선 / 200일선">
 <meta property="og:description" content="비트코인·금·나스닥·코스피 등 종목을 120일선·200일선과 금 겹치기로 한 화면에서">
 <meta property="og:type" content="website">
@@ -28,13 +29,14 @@
     margin:0;background:var(--bg);color:var(--text);
     font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Pretendard",system-ui,sans-serif;
     display:flex;flex-direction:column;min-height:100dvh;
+    -webkit-text-size-adjust:100%;
   }
   header{
-    padding:14px 16px 10px;border-bottom:1px solid var(--line);
+    padding:13px 16px 9px;border-bottom:1px solid var(--line);
     background:linear-gradient(180deg,#12161c 0%,#0b0e11 100%);
     position:sticky;top:0;z-index:10;
   }
-  .top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
   .brand{font-size:15px;font-weight:800;letter-spacing:-.3px}
   .brand span{color:var(--gold)}
   .live{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);
@@ -43,6 +45,7 @@
   .current{margin-left:auto;font-size:12px;color:var(--muted);white-space:nowrap}
   .current b{color:var(--text);font-weight:700}
 
+  /* 종목 퀵바 */
   .quickbar{
     display:flex;gap:6px;overflow-x:auto;padding:10px 16px 2px;margin:0 -16px;
     scrollbar-width:none;-webkit-overflow-scrolling:touch;
@@ -50,10 +53,10 @@
   .quickbar::-webkit-scrollbar{display:none}
   .chip{
     flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;
-    padding:8px 12px;border-radius:10px;border:1px solid var(--line);
+    min-height:38px;padding:0 12px;border-radius:10px;border:1px solid var(--line);
     background:var(--panel);color:var(--text);font-size:13px;font-weight:600;
     cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s,transform .08s;
-    font-family:inherit;
+    font-family:inherit;touch-action:manipulation;
   }
   .chip:active{transform:scale(.97)}
   .chip .tick{width:6px;height:6px;border-radius:2px;background:var(--muted)}
@@ -61,50 +64,66 @@
   .chip.active{background:#1d2733;border-color:#39506b;box-shadow:inset 0 0 0 1px #2b3d52}
   .chip.active .tick{background:var(--up)}
 
-  .tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px}
+  /* 토글 버튼 (실제로 눌러서 켜고 끔) */
+  .tools{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:10px}
   .toggle{
-    display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;
-    border:1px solid var(--line);background:var(--panel);cursor:pointer;font-size:13px;font-weight:600;color:var(--text);
-    font-family:inherit;
+    display:inline-flex;align-items:center;gap:7px;
+    min-height:40px;padding:0 12px;border-radius:10px;
+    border:1px solid var(--line);background:var(--panel);color:#9aa6b4;
+    cursor:pointer;font-size:13px;font-weight:700;font-family:inherit;
+    transition:background .15s,border-color .15s,color .15s,transform .08s;
+    touch-action:manipulation;
   }
-  .toggle .sw{position:relative;width:34px;height:19px;border-radius:999px;background:#2b3644;transition:background .18s}
-  .toggle .sw::after{content:"";position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;background:#8b97a6;transition:transform .18s,background .18s}
-  .toggle.on .sw{background:rgba(232,194,90,.35)}
-  .toggle.on .sw::after{transform:translateX(15px);background:var(--gold)}
-  .toggle .lbl{color:var(--muted);font-weight:500}
-  .toggle.on .lbl{color:var(--gold)}
+  .toggle:active{transform:scale(.97)}
+  .toggle .sw{position:relative;width:30px;height:17px;border-radius:999px;background:#2b3644;transition:background .18s;flex:0 0 auto}
+  .toggle .sw::after{content:"";position:absolute;top:2px;left:2px;width:13px;height:13px;border-radius:50%;background:#78838f;transition:transform .18s,background .18s}
+  .toggle .st{font-size:10px;font-weight:800;letter-spacing:.5px;color:#66717d}
+  .toggle[aria-pressed="true"]{color:var(--text);border-color:#39506b;background:#1b2433}
+  .toggle[aria-pressed="true"] .sw{background:rgba(74,158,255,.4)}
+  .toggle[aria-pressed="true"] .sw::after{transform:translateX(13px);background:var(--ma)}
+  .toggle[aria-pressed="true"] .st{color:var(--ma)}
+  .toggle.gold[aria-pressed="true"]{border-color:#5b4a1f;background:#241f12}
+  .toggle.gold[aria-pressed="true"] .sw{background:rgba(232,194,90,.4)}
+  .toggle.gold[aria-pressed="true"] .sw::after{background:var(--gold)}
+  .toggle.gold[aria-pressed="true"] .st{color:var(--gold)}
 
-  form.search{display:flex;align-items:center;flex:1 1 210px;min-width:180px}
+  form.search{display:flex;align-items:center;flex:1 1 200px;min-width:170px}
   form.search input{
-    flex:1;min-width:0;padding:9px 11px;border-radius:10px 0 0 10px;border:1px solid var(--line);border-right:0;
+    flex:1;min-width:0;height:40px;padding:0 11px;border-radius:10px 0 0 10px;border:1px solid var(--line);border-right:0;
     background:var(--panel-2);color:var(--text);font-size:13px;font-family:inherit;outline:none;
   }
-  form.search input::placeholder{color:#5f6b7a}
+  form.search input::placeholder{color:#5f6b7a;font-size:12px}
   form.search input:focus{border-color:#39506b}
   form.search button{
-    padding:9px 13px;border-radius:0 10px 10px 0;border:1px solid var(--line);
+    height:40px;padding:0 14px;border-radius:0 10px 10px 0;border:1px solid var(--line);
     background:#1d2733;color:var(--text);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;
+    touch-action:manipulation;
   }
-  .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:9px;font-size:12px;color:var(--muted)}
-  .legend i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle}
-  .legend .ma i{background:var(--ma)}
-  .legend .g i{background:var(--gold)}
-  .legend .g{opacity:.45}
-  .legend .g.on{opacity:1}
+  .legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;font-size:11px;color:#6f7b89}
+  .legend b{color:#93a0b0;font-weight:600}
 
   main{flex:1;min-height:0;display:flex;flex-direction:column;padding:10px 12px 12px}
   #chart{flex:1;min-height:420px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--panel);position:relative}
   #chart iframe{display:block!important;width:100%!important;height:100%!important}
   .tradingview-widget-container{height:100%!important}
   .tradingview-widget-container__widget{height:100%!important}
+  #loading{position:absolute;inset:0;display:none;align-items:center;justify-content:center;
+    background:rgba(11,14,17,.55);font-size:12px;color:var(--muted);z-index:2}
+  #loading.on{display:flex}
   .note{margin:9px 2px 0;font-size:11px;line-height:1.6;color:#6f7b89}
   .note b{color:#93a0b0;font-weight:600}
+
   @media (max-width:560px){
-    header{padding:12px 12px 8px}
+    header{padding:11px 12px 8px}
     .quickbar{margin:0 -12px;padding-left:12px;padding-right:12px}
     main{padding:8px 8px 10px}
     #chart{min-height:58dvh;border-radius:12px}
-    .current{width:100%;margin-left:0;order:3}
+    .current{width:100%;margin-left:0;order:3;font-size:11px}
+    .tools{gap:5px}
+    .toggle{font-size:12px;padding:0 10px;gap:5px}
+    .toggle .st{display:none}
+    form.search{flex:1 1 100%;margin-top:2px}
+    .legend{font-size:10px}
   }
 </style>
 </head>
@@ -112,81 +131,82 @@
 <header>
   <div class="top">
     <div class="brand">BTC <span>·</span> GOLD 차트</div>
-    <div class="live"><span class="dot"></span>TradingView 실시간</div>
+    <div class="live"><span class="dot"></span>TradingView</div>
     <div class="current">현재 <b id="curName">비트코인</b> <span id="curSym" style="opacity:.7">BITSTAMP:BTCUSD</span></div>
   </div>
 
   <div class="quickbar" id="quickbar">
     <button class="chip active" data-symbol="BITSTAMP:BTCUSD" data-name="비트코인"><span class="tick"></span>비트코인 BTC</button>
     <button class="chip" data-symbol="TVC:GOLD" data-name="금"><span class="tick"></span>금 GOLD</button>
-    <button class="chip" data-symbol="NASDAQ:NDX" data-name="나스닥"><span class="tick"></span>나스닥 NDX</button>
-    <button class="chip" data-symbol="TVC:SPX" data-name="S&amp;P 500"><span class="tick"></span>S&amp;P 500</button>
-    <button class="chip" data-symbol="KRX:KOSPI" data-name="코스피"><span class="tick"></span>코스피 KOSPI</button>
+    <button class="chip" data-symbol="NASDAQ:QQQ" data-name="나스닥100"><span class="tick"></span>나스닥100 QQQ</button>
+    <button class="chip" data-symbol="AMEX:SPY" data-name="S&amp;P 500"><span class="tick"></span>S&amp;P 500 SPY</button>
+    <button class="chip" data-symbol="AMEX:EWY" data-name="한국 EWY"><span class="tick"></span>한국 EWY</button>
     <button class="chip" data-symbol="NASDAQ:NVDA" data-name="엔비디아"><span class="tick"></span>엔비디아 NVDA</button>
     <button class="chip" data-symbol="NASDAQ:TSLA" data-name="테슬라"><span class="tick"></span>테슬라 TSLA</button>
     <button class="chip" data-symbol="FX_IDC:USDKRW" data-name="달러/원"><span class="tick"></span>달러/원 USDKRW</button>
   </div>
 
   <div class="tools">
-    <button class="toggle on" id="goldToggle" role="switch" aria-checked="true">
-      <span class="sw"></span><span>금 겹치기</span><span class="lbl" id="goldState">ON</span>
-    </button>
+    <button class="toggle ma120" id="t120" aria-pressed="true"><span class="sw"></span><span>120일선</span><span class="st">ON</span></button>
+    <button class="toggle ma200" id="t200" aria-pressed="true"><span class="sw"></span><span>200일선</span><span class="st">ON</span></button>
+    <button class="toggle gold" id="tGold" aria-pressed="true"><span class="sw"></span><span>금 겹치기</span><span class="st">ON</span></button>
     <form class="search" id="searchForm" autocomplete="off">
-      <input id="symbolInput" type="text" placeholder="심볼 입력 (예: NASDAQ:TSLA, KRX:005930)" aria-label="심볼 입력">
+      <input id="symbolInput" type="text" placeholder="심볼 입력 (예: NASDAQ:TSLA, BINANCE:ETHUSDT)" aria-label="심볼 입력" enterkeyhint="go">
       <button type="submit">보기</button>
     </form>
   </div>
 
   <div class="legend">
-    <span class="ma"><i></i>MA 120 · MA 200 (파란 이평선 두 개)</span>
-    <span class="g" id="goldLegend"><i></i>금(TVC:GOLD) 겹치기</span>
+    <span id="legend">불러오는 중…</span>
   </div>
 </header>
 
 <main>
-  <div id="chart"></div>
+  <div id="chart"><div id="loading">차트 불러오는 중…</div></div>
   <p class="note">
-    <b>120일선·200일선</b>은 어떤 종목을 눌러도 자동으로 두 개가 그려지고, 범례에 <b>Length 120 / 200</b>과 우측 축에 각 선의 현재 값이 표시됩니다.
-    <b>금 겹치기</b>를 켜면 차트가 <b>기준점 대비 % 변동</b>으로 바뀌어 금(TVC:GOLD)과 같은 출발점에서 겹쳐 보입니다(끄면 종목의 실제 가격 축으로 돌아옵니다).
-    일봉(1D) 기준입니다.
+    <b>120일선 · 200일선 · 금 겹치기</b>는 위 버튼으로 직접 켜고 끌 수 있습니다. 이평선은 어떤 종목을 눌러도 같은 설정으로 유지되고, 범례에 <b>Length 120 / 200</b>과 우측 축에 각 선의 값이 나옵니다.
+    <b>금 겹치기</b>를 켜면 차트가 <b>기준점 대비 % 변동</b>으로 바뀌어 금(TVC:GOLD)과 겹쳐 보이고, 끄면 그 종목의 실제 가격 축으로 돌아옵니다.
+    일봉(1D) 기준이며, 나스닥·S&amp;P500·한국은 지수 대신 미국 상장 ETF(QQQ·SPY·EWY)로 그립니다.
   </p>
 </main>
 
 <script type="text/javascript">
 (function(){
   var GOLD = "TVC:GOLD";
-  var state = { symbol: "BITSTAMP:BTCUSD", name: "비트코인", compare: true };
+  var state = { symbol: "BITSTAMP:BTCUSD", name: "비트코인", ma120: true, ma200: true, gold: true };
 
-  var chartEl    = document.getElementById("chart");
-  var curName    = document.getElementById("curName");
-  var curSym     = document.getElementById("curSym");
-  var goldToggle = document.getElementById("goldToggle");
-  var goldState  = document.getElementById("goldState");
-  var goldLegend = document.getElementById("goldLegend");
-  var bar        = document.getElementById("quickbar");
-  var form       = document.getElementById("searchForm");
-  var input      = document.getElementById("symbolInput");
+  var chartEl = document.getElementById("chart");
+  var loading = document.getElementById("loading");
+  var curName = document.getElementById("curName");
+  var curSym  = document.getElementById("curSym");
+  var legend  = document.getElementById("legend");
+  var bar     = document.getElementById("quickbar");
+  var form    = document.getElementById("searchForm");
+  var input   = document.getElementById("symbolInput");
+  var t120 = document.getElementById("t120");
+  var t200 = document.getElementById("t200");
+  var tGold = document.getElementById("tGold");
 
   var ALIASES = {
     "BTCUSD":"BITSTAMP:BTCUSD", "BTC":"BITSTAMP:BTCUSD", "비트코인":"BITSTAMP:BTCUSD",
     "GOLD":"TVC:GOLD", "XAUUSD":"TVC:GOLD", "금":"TVC:GOLD",
-    "NDX":"NASDAQ:NDX", "나스닥":"NASDAQ:NDX",
-    "SPX":"TVC:SPX", "SP500":"TVC:SPX",
-    "KOSPI":"KRX:KOSPI", "코스피":"KRX:KOSPI",
+    "QQQ":"NASDAQ:QQQ", "NDX":"NASDAQ:QQQ", "나스닥":"NASDAQ:QQQ", "나스닥100":"NASDAQ:QQQ",
+    "SPY":"AMEX:SPY", "SPX":"AMEX:SPY", "SP500":"AMEX:SPY",
+    "EWY":"AMEX:EWY", "코스피":"AMEX:EWY", "한국":"AMEX:EWY",
     "NVDA":"NASDAQ:NVDA", "엔비디아":"NASDAQ:NVDA",
     "TSLA":"NASDAQ:TSLA", "테슬라":"NASDAQ:TSLA",
-    "USDKRW":"FX_IDC:USDKRW", "달러":"FX_IDC:USDKRW"
+    "USDKRW":"FX_IDC:USDKRW", "달러":"FX_IDC:USDKRW",
+    "ETH":"BINANCE:ETHUSDT", "이더리움":"BINANCE:ETHUSDT"
   };
 
-  // 120일선 + 200일선: 객체 형태로 넘겨야 길이가 각각 적용된다
-  var STUDIES = [
-    { id: "MASimple@tv-basicstudies", inputs: { length: 120 } },
-    { id: "MASimple@tv-basicstudies", inputs: { length: 200 } }
-  ];
+  function buildStudies(){
+    var s = [];
+    if (state.ma120) s.push({ id: "MASimple@tv-basicstudies", inputs: { length: 120 } });
+    if (state.ma200) s.push({ id: "MASimple@tv-basicstudies", inputs: { length: 200 } });
+    return s;
+  }
 
   function render(){
-    chartEl.innerHTML = "";
-
     var wrap = document.createElement("div");
     wrap.className = "tradingview-widget-container";
     wrap.style.height = "100%";
@@ -196,7 +216,6 @@
     inner.style.height = "100%";
     inner.style.width = "100%";
     wrap.appendChild(inner);
-    chartEl.appendChild(wrap);
 
     var cfg = {
       autosize: true,
@@ -219,10 +238,11 @@
       hotlist: false,
       calendar: false,
       watchlist: [],
-      studies: STUDIES,
       support_host: "https://www.tradingview.com"
     };
-    if (state.compare && state.symbol !== GOLD) {
+    var studies = buildStudies();
+    if (studies.length) cfg.studies = studies;
+    if (state.gold && state.symbol !== GOLD) {
       cfg.compareSymbols = [{ symbol: GOLD, position: "SameScale" }];
     }
 
@@ -233,18 +253,32 @@
     sc.innerHTML = JSON.stringify(cfg);
     wrap.appendChild(sc);
 
+    loading.classList.add("on");
+    var old = chartEl.querySelector(".tradingview-widget-container");
+    if (old && old.parentNode) old.parentNode.removeChild(old);
+    chartEl.appendChild(wrap);
+    window.setTimeout(function(){ loading.classList.remove("on"); }, 1500);
+
     curName.textContent = state.name;
     curSym.textContent = state.symbol;
     Array.prototype.forEach.call(bar.querySelectorAll(".chip"), function(c){
       c.classList.toggle("active", c.getAttribute("data-symbol") === state.symbol);
     });
+
+    var parts = [];
+    if (state.ma120) parts.push("MA 120 ON");
+    if (state.ma200) parts.push("MA 200 ON");
+    if (state.gold && state.symbol !== GOLD) parts.push("금 겹치기 ON");
+    legend.textContent = parts.length ? parts.join(" · ") : "이평선·겹치기 모두 OFF (차트만 보기)";
   }
 
-  function setGoldUI(){
-    goldToggle.classList.toggle("on", state.compare);
-    goldToggle.setAttribute("aria-checked", state.compare ? "true" : "false");
-    goldState.textContent = state.compare ? "ON" : "OFF";
-    goldLegend.classList.toggle("on", state.compare);
+  function syncToggles(){
+    t120.setAttribute("aria-pressed", state.ma120 ? "true" : "false");
+    t200.setAttribute("aria-pressed", state.ma200 ? "true" : "false");
+    tGold.setAttribute("aria-pressed", state.gold ? "true" : "false");
+    t120.querySelector(".st").textContent = state.ma120 ? "ON" : "OFF";
+    t200.querySelector(".st").textContent = state.ma200 ? "ON" : "OFF";
+    tGold.querySelector(".st").textContent = state.gold ? "ON" : "OFF";
   }
 
   function pick(symbol, name){
@@ -259,31 +293,23 @@
     pick(chip.getAttribute("data-symbol"), chip.getAttribute("data-name"));
   });
 
-  function toggleGold(){
-    state.compare = !state.compare;
-    setGoldUI();
-    render();
-  }
-  goldToggle.addEventListener("click", toggleGold);
-  goldToggle.addEventListener("keydown", function(ev){
-    if (ev.key === "Enter" || ev.key === " "){ ev.preventDefault(); toggleGold(); }
-  });
+  t120.addEventListener("click", function(){ state.ma120 = !state.ma120; syncToggles(); render(); });
+  t200.addEventListener("click", function(){ state.ma200 = !state.ma200; syncToggles(); render(); });
+  tGold.addEventListener("click", function(){ state.gold = !state.gold; syncToggles(); render(); });
 
   form.addEventListener("submit", function(ev){
     ev.preventDefault();
     var v = input.value.trim();
     if (!v) return;
     var up = v.toUpperCase();
-    if (up.indexOf(":") === -1 && ALIASES[up]) {
-      up = ALIASES[up];
-    } else if (ALIASES[v]) {
-      up = ALIASES[v];
-    }
+    if (up.indexOf(":") === -1 && ALIASES[up]) up = ALIASES[up];
+    else if (ALIASES[v]) up = ALIASES[v];
     input.value = "";
+    input.blur();
     pick(up, up);
   });
 
-  setGoldUI();
+  syncToggles();
   render();
 })();
 </script>
