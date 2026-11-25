@@ -227,6 +227,13 @@
         { "moving average.length": 120, "moving average_1.length": 200 });
     } else if (ENGINE === "m5") {
       studiesConf = ["STD;MASimple", "STD;MASimple"];
+    } else if (ENGINE === "m6") {
+      studiesConf = [{ id: "MASimple@tv-basicstudies", inputs: { length: 120 } },
+                     { id: "MASimple@tv-basicstudies", inputs: { length: 200 } }];
+    } else if (ENGINE === "m8") {
+      studiesConf = ["MASimple@tv-basicstudies", "MASimple@tv-basicstudies"];
+    } else if (ENGINE === "m9") {
+      studiesConf = ["STD;MASimple;MASimple", "STD;MASimple;MASimple"];
     }
 
     var cfg = {
