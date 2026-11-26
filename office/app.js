@@ -999,7 +999,7 @@
       return '<article class="ap' + (a.urgent ? ' urgent' : '') + '">' +
         '<span class="ico">' + esc(a.icon || '📄') + '</span>' +
         '<div>' +
-        '<h3>' + esc(a.title) + (a.urgent ? '<span class="dday">D-1</span>' : '') + '</h3>' +
+        '<h3>' + esc(a.title) + (a.badge ? '<span class="dday">' + esc(a.badge) + '</span>' : '') + '</h3>' +
         '<p class="sub">' + esc(a.team) + ' · ' + esc(a.meta) + '</p>' +
         '<div class="opts">' + (a.options || []).map(function (o) {
           return '<span>' + esc(o) + '</span>';
@@ -1057,7 +1057,7 @@
       }).join('');
       body.innerHTML =
         '<div class="hd"><span class="nm">오피스 전체</span><span class="st run">가동중</span></div>' +
-        '<div class="chips"><span>7팀</span><span>봇 13명</span><span>결재 ' + (DATA.approvals || []).length + '건</span></div>' +
+        '<div class="chips"><span>' + depts.length + '팀</span><span>봇 ' + ((DATA.stats && DATA.stats.bots) || 13) + '명</span><span>결재 ' + (DATA.approvals || []).length + '건</span></div>' +
         '<ul class="tasks" id="deptRows">' + rows + '</ul>' +
         '<p class="note">방이나 팀 이름을 누르면 상세가 열린다</p>';
       return;
