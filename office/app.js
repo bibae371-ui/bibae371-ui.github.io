@@ -95,6 +95,7 @@
     canvas.style.height = cssH + 'px';
     canvas.width = Math.round(cssW * dpr);
     canvas.height = Math.round(cssH * dpr);
+    holder.style.width = cssW + 'px';
     holder.style.height = cssH + 'px';
 
     S = canvas.width / VW;
@@ -182,13 +183,11 @@
   function drawCorridor(g) {
     var x = CORR_X - 6, w = 12, y = 3, h = 193;
     R(g, x, y, w, h, '#101a2c');
-    // 바닥 타일 세로줄
-    for (var yy = y; yy < y + h; yy += 7) R(g, x, yy, w, 0.5, 'rgba(255,255,255,.035)');
     // 러너 카펫
     R(g, x + 1.6, y, 8.8, h, '#16223a');
-    R(g, x + 1.6, y, 0.7, h, 'rgba(60,224,255,.16)');
-    R(g, x + 9.7, y, 0.7, h, 'rgba(60,224,255,.10)');
-    for (var d = y + 2; d < y + h; d += 7) R(g, x + 2.6, d, 6.8, 2.6, 'rgba(60,224,255,.045)');
+    R(g, x + 1.6, y, 0.7, h, 'rgba(60,224,255,.14)');
+    R(g, x + 9.7, y, 0.7, h, 'rgba(60,224,255,.09)');
+    for (var d = y + 2; d < y + h; d += 9) R(g, x + 2.8, d, 6.4, 3, 'rgba(60,224,255,.022)');
     // 조명등 + 빛 웅덩이
     for (var ly = 14; ly < 186; ly += 30) {
       R(g, x + 2.4, ly, 7.2, 1.2, 'rgba(255,236,190,.7)');
@@ -380,21 +379,19 @@
       R(g, r.x + 6.6, r.y + 8.6, 7.6, 0.8, 'rgba(167,139,250,.45)');
     }
     // 낮은 캐비닛
-    R(g, r.x + 3, r.y + r.h - 17, 11, 8, '#232c40');
-    R(g, r.x + 3, r.y + r.h - 17, 11, 1, '#33405a');
-    R(g, r.x + 3.6, r.y + r.h - 14.6, 9.8, 0.6, '#1a2234');
-    R(g, r.x + 3.6, r.y + r.h - 12, 9.8, 0.6, '#1a2234');
-    R(g, r.x + 7.4, r.y + r.h - 15.6, 2.2, 0.8, '#8b97a6');
-    R(g, r.x + 7.4, r.y + r.h - 13, 2.2, 0.8, '#8b97a6');
+    R(g, r.x + 3, r.y + r.h - 22, 11, 8, '#232c40');
+    R(g, r.x + 3, r.y + r.h - 22, 11, 1, '#33405a');
+    R(g, r.x + 3.6, r.y + r.h - 19.6, 9.8, 0.6, '#1a2234');
+    R(g, r.x + 3.6, r.y + r.h - 17, 9.8, 0.6, '#1a2234');
+    R(g, r.x + 7.4, r.y + r.h - 20.6, 2.2, 0.8, '#8b97a6');
+    R(g, r.x + 7.4, r.y + r.h - 18, 2.2, 0.8, '#8b97a6');
 
     lamp(g, cx, r.y + 0.4, wallH);
 
-    // 화분 / 시계
+    // 화분 / 팀 컬러 띠
     plant(g, r.x + r.w - 11, r.y + r.h - 12, 1);
-    R(g, r.x + r.w - 13.5, r.y + 2.4, 5.6, 5.6, '#0d1728');
-    R(g, r.x + r.w - 13, r.y + 2.9, 4.6, 4.6, '#dbe7f7');
-    R(g, r.x + r.w - 11, r.y + 3.9, 0.7, 2, '#2b3a56');
-    R(g, r.x + r.w - 11, r.y + 5.4, 1.5, 0.7, '#2b3a56');
+    R(g, r.x, r.y + wallH - 2.2, r.w, 1, SHIRTS[key] || '#3ce0ff');
+    R(g, r.x, r.y + wallH - 2.2, r.w, 0.4, 'rgba(255,255,255,.30)');
 
     // 의자 (책상 뒤)
     R(g, cx - 6, deskTop - 9.5, 11, 10, '#161f30');
@@ -942,28 +939,21 @@
 
     var ap = (DATA.approvals || []).length;
     if (ap) {
-      var badge = document.createElement('div');
-      badge.className = 'room-static';
-      badge.style.left = ((ROOMS.ceo.x + ROOMS.ceo.w - 3) / VW * 100) + '%';
-      badge.style.top = ((ROOMS.ceo.y + 4) / VH * 100) + '%';
-      badge.style.transform = 'translateX(-100%)';
-      badge.innerHTML = '<span class="room-badge">결재 ' + ap + '</span>';
-      ov.appendChild(badge);
-    }
-    if (DATA.ceo && DATA.ceo.bubble) {
       var cb = document.createElement('div');
       cb.className = 'room-static';
-      cb.style.left = ((ROOMS.ceo.x + 2) / VW * 100) + '%';
-      cb.style.top = ((ROOMS.ceo.y + 25) / VH * 100) + '%';
-      cb.innerHTML = '<span class="room-bubble wait" style="position:static">' + esc(DATA.ceo.bubble) + '</span>';
+      cb.style.left = (ROOMS.ceo.x / VW * 100) + '%';
+      cb.style.top = (ROOMS.ceo.y / VH * 100) + '%';
+      cb.style.width = (ROOMS.ceo.w / VW * 100) + '%';
+      cb.style.height = (ROOMS.ceo.h / VH * 100) + '%';
+      cb.innerHTML = '<span class="room-badge">결재 ' + ap + '</span>';
       ov.appendChild(cb);
     }
-    var rests = (bots.filter(function (b) { return b.kind === 'rest'; }) || []).length;
     var pb = document.createElement('div');
     pb.className = 'room-static';
-    pb.style.left = ((ROOMS.pantry.x + ROOMS.pantry.w - 3) / VW * 100) + '%';
-    pb.style.top = ((ROOMS.pantry.y + 3) / VH * 100) + '%';
-    pb.style.transform = 'translateX(-100%)';
+    pb.style.left = (ROOMS.pantry.x / VW * 100) + '%';
+    pb.style.top = (ROOMS.pantry.y / VH * 100) + '%';
+    pb.style.width = (ROOMS.pantry.w / VW * 100) + '%';
+    pb.style.height = (ROOMS.pantry.h / VH * 100) + '%';
     pb.innerHTML = '<span class="room-badge">휴게 2</span>';
     ov.appendChild(pb);
 
