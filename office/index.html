@@ -104,8 +104,9 @@
   .stage-head .tag{font-size:10px;color:var(--dim2);border:1px solid var(--line);border-radius:999px;padding:2px 7px}
   .stage-head .spacer{margin-left:auto}
   .canvas-holder{position:relative;margin:0 auto;width:100%;background:#070a14}
-  canvas#office{display:block;width:100%;height:auto;image-rendering:pixelated;image-rendering:crisp-edges}
+  canvas#office{display:block;margin:0 auto;image-rendering:pixelated;image-rendering:crisp-edges}
   .overlay{position:absolute;inset:0;pointer-events:none}
+  .room-static{position:absolute;pointer-events:none}
   .room-hit{
     position:absolute;pointer-events:auto;border:0;padding:0;background:transparent;cursor:pointer;
     border-radius:6px;transition:box-shadow .18s, background .18s;
@@ -130,6 +131,12 @@
   .room-bubble.run{background:#8fd0ff;border-color:#d6efff;color:#04121f}
   .room-hit.sel .room-tag{border-color:var(--neon);color:#fff;background:rgba(12,40,58,.95);box-shadow:0 0 0 1px rgba(60,224,255,.5)}
   .room-hit.sel{box-shadow:inset 0 0 0 2px rgba(60,224,255,.85), 0 0 22px -4px rgba(60,224,255,.65);background:rgba(60,224,255,.06)}
+  .room-badge{
+    position:absolute;right:2px;top:2px;transform:translateX(0);
+    font-size:var(--fs-bub,8.5px);font-weight:900;letter-spacing:-.2px;line-height:1;
+    padding:3px 6px;border-radius:4px;white-space:nowrap;
+    color:#2a1c00;background:#ffd166;border:1px solid #fff0c2;box-shadow:0 2px 0 rgba(0,0,0,.5);
+  }
   .stage-foot{
     display:flex;align-items:center;gap:8px;flex-wrap:wrap;
     padding:8px 11px;border-top:1px solid var(--line);background:#0a1120;
