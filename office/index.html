@@ -48,8 +48,8 @@
   /* ---------- top bar ---------- */
   .topbar{
     position:sticky;top:0;z-index:40;
-    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
-    padding:11px 14px 10px;
+    display:flex;align-items:center;gap:8px;flex-wrap:nowrap;
+    padding:10px 12px 9px;
     background:linear-gradient(180deg,rgba(10,15,30,.97),rgba(7,10,20,.86));
     border-bottom:1px solid var(--line);
     backdrop-filter:blur(10px);
@@ -69,8 +69,15 @@
   .brand-mark i:nth-child(7){background:#1c2740}
   .brand-mark i:nth-child(8){background:#4ade80}
   .brand-mark i:nth-child(9){background:#ff7ba9}
-  .brand b{display:block;font-size:15px;font-weight:800;letter-spacing:-.4px;line-height:1.15}
-  .brand small{display:block;font-size:10.5px;color:var(--dim2);letter-spacing:.02em;margin-top:1px}
+  .brand b{display:block;font-size:15px;font-weight:800;letter-spacing:-.4px;line-height:1.15;white-space:nowrap}
+  .brand small{display:block;font-size:10.5px;color:var(--dim2);letter-spacing:.02em;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:52vw}
+  @media(max-width:430px){
+    .brand b{font-size:13.5px}
+    .brand small{font-size:9px;max-width:44vw}
+    .brand-mark{width:26px;height:26px}
+    .clock{font-size:11px;padding:3px 7px}
+    .live{font-size:9.5px;padding:3px 6px}
+  }
   .top-right{margin-left:auto;display:flex;align-items:center;gap:7px}
   .live{
     display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:700;letter-spacing:.08em;
@@ -329,6 +336,6 @@
   <span id="stamp"></span>
 </footer>
 
-<script src="./app.js?v=6"></script>
+<script src="./app.js?v=7"></script>
 </body>
 </html>
