@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#070a14">
+<title>당버지 AI 오피스 — 실시간 현황판</title>
+<meta name="description" content="대표실·회의실·7개 부서 방·탕비실이 움직이는 픽셀아트 AI 오피스 현황판. 대표 결재함과 부서별 처리 완료를 한 화면에서.">
+<meta property="og:title" content="당버지 AI 오피스 — 실시간 현황판">
+<meta property="og:description" content="픽셀아트 AI 오피스에서 봇들이 일하는 동안, 대표 결재함과 부서별 처리가 한눈에.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://bibae371-ui.github.io/office/">
+<link rel="canonical" href="https://bibae371-ui.github.io/office/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23070a14'/%3E%3Crect x='2' y='2' width='12' height='5' fill='%233ce0ff'/%3E%3Crect x='2' y='9' width='5' height='5' fill='%23ffd166'/%3E%3Crect x='9' y='9' width='5' height='5' fill='%234ade80'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#070a14;
+    --bg2:#0a0f1e;
+    --panel:#0f1728;
+    --panel2:#131d31;
+    --line:#22304c;
+    --line2:#2c3d5e;
+    --txt:#e8eefc;
+    --dim:#93a7c9;
+    --dim2:#6b7f9e;
+    --neon:#3ce0ff;
+    --gold:#ffd166;
+    --green:#4ade80;
+    --pink:#ff7ba9;
+    --red:#ff6b6b;
+    --violet:#a78bfa;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    background:
+      radial-gradient(1100px 520px at 50% -12%, #14203b 0%, rgba(7,10,20,0) 62%),
+      var(--bg);
+    color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Pretendard",system-ui,sans-serif;
+    -webkit-text-size-adjust:100%;
+    min-height:100dvh;
+    padding-bottom:36px;
+  }
+  a{color:inherit}
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    position:sticky;top:0;z-index:40;
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    padding:11px 14px 10px;
+    background:linear-gradient(180deg,rgba(10,15,30,.97),rgba(7,10,20,.86));
+    border-bottom:1px solid var(--line);
+    backdrop-filter:blur(10px);
+  }
+  .brand{display:flex;align-items:center;gap:9px;min-width:0}
+  .brand-mark{
+    width:30px;height:30px;flex:0 0 auto;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);
+    gap:1px;padding:3px;border:1px solid #2c3d5e;border-radius:8px;background:#0b1220;
+  }
+  .brand-mark i{display:block;border-radius:1px}
+  .brand-mark i:nth-child(1){background:#3ce0ff}
+  .brand-mark i:nth-child(2){background:#3ce0ff;opacity:.45}
+  .brand-mark i:nth-child(3){background:#1c2740}
+  .brand-mark i:nth-child(4){background:#ffd166}
+  .brand-mark i:nth-child(5){background:#ffd166;opacity:.5}
+  .brand-mark i:nth-child(6){background:#1c2740}
+  .brand-mark i:nth-child(7){background:#1c2740}
+  .brand-mark i:nth-child(8){background:#4ade80}
+  .brand-mark i:nth-child(9){background:#ff7ba9}
+  .brand b{display:block;font-size:15px;font-weight:800;letter-spacing:-.4px;line-height:1.15}
+  .brand small{display:block;font-size:10.5px;color:var(--dim2);letter-spacing:.02em;margin-top:1px}
+  .top-right{margin-left:auto;display:flex;align-items:center;gap:7px}
+  .live{
+    display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:700;letter-spacing:.08em;
+    color:#9bf3ff;background:#0a2230;border:1px solid #164456;border-radius:999px;padding:4px 8px;
+  }
+  .live i{width:6px;height:6px;border-radius:50%;background:var(--neon);box-shadow:0 0 8px var(--neon);animation:pulse 1.6s infinite}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.8)}}
+  .clock{font-variant-numeric:tabular-nums;font-size:12px;font-weight:700;color:#cfe0ff;background:#0b1220;border:1px solid var(--line);border-radius:999px;padding:4px 9px}
+
+  /* ---------- layout ---------- */
+  .wrap{padding:12px 12px 0;max-width:1240px;margin:0 auto}
+  .grid{display:grid;gap:12px}
+  @media(min-width:900px){
+    .grid{grid-template-columns:minmax(0,1.12fr) minmax(340px,.88fr);align-items:start}
+    .col-left{position:sticky;top:64px}
+  }
+  .col{display:flex;flex-direction:column;gap:12px;min-width:0}
+
+  /* ---------- stage ---------- */
+  .stage{
+    border:1px solid var(--line);border-radius:16px;overflow:hidden;
+    background:linear-gradient(180deg,#0c1424,#080c18);
+    box-shadow:0 20px 50px -30px #000, inset 0 1px 0 rgba(120,170,255,.08);
+  }
+  .stage-head{
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+    padding:9px 11px;border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg,#111c31,#0c1423);
+  }
+  .stage-head h1{margin:0;font-size:12.5px;font-weight:800;letter-spacing:.02em;color:#dce8ff}
+  .stage-head .tag{font-size:10px;color:var(--dim2);border:1px solid var(--line);border-radius:999px;padding:2px 7px}
+  .stage-head .spacer{margin-left:auto}
+  .canvas-holder{position:relative;margin:0 auto;width:100%;background:#070a14}
+  canvas#office{display:block;width:100%;height:auto;image-rendering:pixelated;image-rendering:crisp-edges}
+  .overlay{position:absolute;inset:0;pointer-events:none}
+  .room-hit{
+    position:absolute;pointer-events:auto;border:0;padding:0;background:transparent;cursor:pointer;
+    border-radius:6px;transition:box-shadow .18s, background .18s;
+  }
+  .room-hit:hover{background:rgba(60,224,255,.05);box-shadow:inset 0 0 0 1px rgba(60,224,255,.35)}
+  .room-tag{
+    position:absolute;left:3px;bottom:3px;display:inline-flex;align-items:center;gap:3px;
+    font-size:var(--fs-tag,9px);font-weight:800;letter-spacing:-.2px;line-height:1;
+    padding:3px 5px;border-radius:4px;white-space:nowrap;
+    color:#dbe8ff;background:rgba(9,14,26,.86);border:1px solid rgba(60,224,255,.28);
+    text-shadow:0 1px 0 #000;
+  }
+  .room-tag em{font-style:normal;opacity:.85;font-weight:700;font-size:8.5px;color:#8fb6d8}
+  .room-bubble{
+    position:absolute;right:2px;top:2px;max-width:80%;
+    display:inline-block;font-size:var(--fs-bub,8.5px);font-weight:800;line-height:1.15;letter-spacing:-.25px;
+    padding:2px 5px 3px;border-radius:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    color:#08120e;background:#9bf3d0;border:1px solid #d6fff0;
+    box-shadow:0 2px 0 rgba(0,0,0,.45);
+  }
+  .room-bubble.wait{background:#ffd166;border-color:#fff0c2;color:#241a00}
+  .room-bubble.run{background:#8fd0ff;border-color:#d6efff;color:#04121f}
+  .room-hit.sel .room-tag{border-color:var(--neon);color:#fff;background:rgba(12,40,58,.95);box-shadow:0 0 0 1px rgba(60,224,255,.5)}
+  .room-hit.sel{box-shadow:inset 0 0 0 2px rgba(60,224,255,.85), 0 0 22px -4px rgba(60,224,255,.65);background:rgba(60,224,255,.06)}
+  .stage-foot{
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+    padding:8px 11px;border-top:1px solid var(--line);background:#0a1120;
+    font-size:10px;color:var(--dim2);
+  }
+  .stage-foot .k{display:inline-flex;align-items:center;gap:4px}
+  .dot{width:6px;height:6px;border-radius:2px;display:inline-block}
+  .dot.g{background:var(--green)} .dot.y{background:var(--gold)} .dot.b{background:var(--neon)}
+
+  /* ---------- panels ---------- */
+  .panel{
+    border:1px solid var(--line);border-radius:var(--radius);
+    background:linear-gradient(180deg,#101a2c,#0c1322);
+    box-shadow:0 16px 40px -34px #000, inset 0 1px 0 rgba(120,170,255,.06);
+    overflow:hidden;
+  }
+  .panel-head{
+    display:flex;align-items:center;gap:7px;
+    padding:10px 12px;border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg,#131f35,#0d1626);
+  }
+  .panel-head h2{margin:0;font-size:12px;font-weight:800;letter-spacing:-.2px;color:#dce8ff}
+  .panel-head .cnt{
+    margin-left:auto;font-size:10px;font-weight:800;color:#0a0f1e;background:var(--gold);
+    border-radius:999px;padding:2px 7px;font-variant-numeric:tabular-nums;
+  }
+  .panel-head .cnt.neutral{background:#22304c;color:#cfe0ff}
+  .panel-body{padding:10px 11px 12px;display:flex;flex-direction:column;gap:8px}
+
+  /* approval */
+  .ap{
+    display:grid;grid-template-columns:26px minmax(0,1fr);gap:9px;
+    padding:9px 9px 9px 8px;border-radius:10px;
+    background:#0e1728;border:1px solid #1d2b45;
+    border-left:3px solid #2b3d5e;
+  }
+  .ap.urgent{border-left-color:var(--red);background:linear-gradient(90deg,rgba(255,107,107,.10),rgba(14,23,40,1) 42%)}
+  .ap p{margin:0}
+  .ap .ico{width:26px;height:26px;border-radius:7px;display:grid;place-items:center;font-size:14px;background:#0a1220;border:1px solid #22304c}
+  .ap h3{margin:0;font-size:12.5px;font-weight:800;letter-spacing:-.3px;line-height:1.3;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .ap .dday{font-size:9px;font-weight:900;letter-spacing:.02em;color:#2a0d0d;background:var(--red);border-radius:4px;padding:2px 5px}
+  .ap .sub{margin:3px 0 0;font-size:10.5px;color:var(--dim);letter-spacing:-.15px}
+  .ap .opts{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+  .ap .opts span{
+    font-size:9.5px;font-weight:700;letter-spacing:-.1px;color:#9fc6ff;
+    background:#0b1a2e;border:1px solid #24405f;border-radius:5px;padding:2px 6px;
+  }
+  .ap .opts span.q{color:#7d8fab;border-color:#243149;background:#0a1220}
+  .ap .opts span.q::before{content:"?";margin-right:3px;opacity:.6}
+
+  /* completed */
+  .team{border-radius:10px;background:#0e1728;border:1px solid #1d2b45;padding:8px 9px}
+  .team h3{margin:0 0 5px;font-size:11.5px;font-weight:800;letter-spacing:-.2px;color:#dbe8ff;display:flex;align-items:center;gap:5px}
+  .team h3 .ok{margin-left:auto;font-size:9px;font-weight:800;color:#0b1a12;background:var(--green);border-radius:4px;padding:1px 5px;letter-spacing:.02em}
+  .team ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
+  .team li{
+    position:relative;padding-left:12px;font-size:10.5px;line-height:1.45;color:#b9c9e4;letter-spacing:-.2px;
+  }
+  .team li::before{
+    content:"";position:absolute;left:1px;top:4px;width:5px;height:5px;border-radius:1px;
+    background:var(--green);box-shadow:0 0 6px rgba(74,222,128,.7);
+  }
+  .links{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
+  .links a{
+    font-size:10px;font-weight:800;text-decoration:none;letter-spacing:-.1px;
+    color:#04121f;background:linear-gradient(180deg,#7fe3ff,#3ce0ff);border-radius:6px;padding:4px 8px;
+    border:1px solid #9df0ff;box-shadow:0 2px 0 #1b6c80;
+  }
+  .links a:active{transform:translateY(1px);box-shadow:0 1px 0 #1b6c80}
+
+  /* detail */
+  .detail .hd{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .detail .hd .nm{font-size:13px;font-weight:900;letter-spacing:-.3px}
+  .detail .hd .st{font-size:9.5px;font-weight:800;border-radius:5px;padding:2px 6px;letter-spacing:.02em}
+  .st.ok{color:#052e18;background:var(--green)}
+  .st.wait{color:#2a1c00;background:var(--gold)}
+  .st.run{color:#04121f;background:#8fd0ff}
+  .chips{display:flex;gap:4px;flex-wrap:wrap;margin-top:7px}
+  .chips span{font-size:9.5px;font-weight:700;color:#9db4d4;background:#0a1220;border:1px solid #22304c;border-radius:999px;padding:2px 7px}
+  .bar{height:6px;border-radius:999px;background:#0a1220;border:1px solid #1b2942;overflow:hidden;margin-top:9px}
+  .bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#3ce0ff,#4ade80);box-shadow:0 0 10px rgba(60,224,255,.5)}
+  .bar.wait i{background:linear-gradient(90deg,#ffd166,#ff9d5c);box-shadow:0 0 10px rgba(255,209,102,.45)}
+  .pct{display:flex;justify-content:space-between;font-size:9.5px;color:var(--dim2);margin-top:5px;font-variant-numeric:tabular-nums}
+  .tasks{list-style:none;margin:9px 0 0;padding:0;display:flex;flex-direction:column;gap:5px}
+  .tasks li{display:flex;gap:6px;font-size:10.5px;line-height:1.45;color:#c2d2ea;letter-spacing:-.2px}
+  .tasks li i{flex:0 0 auto;width:7px;height:7px;border-radius:2px;margin-top:4px}
+  .tasks li.done i{background:var(--green)}
+  .tasks li.run i{background:#8fd0ff;animation:pulse 1.6s infinite}
+  .tasks li.wait i{background:var(--gold)}
+
+  /* log strip */
+  .logs{display:flex;flex-direction:column;gap:3px}
+  .logs div{display:flex;gap:7px;font-size:10px;color:#9db4d4;letter-spacing:-.2px;line-height:1.4}
+  .logs time{color:#5f7392;font-variant-numeric:tabular-nums;flex:0 0 auto}
+
+  .note{
+    font-size:9.5px;color:#5f7392;letter-spacing:-.15px;line-height:1.5;margin:2px 0 0;
+    padding-top:7px;border-top:1px dashed #1b2942;
+  }
+  .err{
+    margin:10px;padding:9px 11px;border-radius:10px;font-size:11px;line-height:1.5;
+    color:#ffd8d8;background:#2a1216;border:1px solid #5c2630;
+  }
+  footer{
+    max-width:1240px;margin:16px auto 0;padding:0 14px;
+    font-size:9.5px;color:#4c5e7a;letter-spacing:-.1px;line-height:1.6;
+  }
+  footer a{color:#6d86a8}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+    <span>
+      <b>당버지 AI 오피스</b>
+      <small id="headline">부서 7팀 · 봇 13명 가동</small>
+    </span>
+  </div>
+  <div class="top-right">
+    <span class="live"><i></i>LIVE</span>
+    <span class="clock" id="clock">--:--</span>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="grid">
+    <div class="col col-left">
+      <section class="stage">
+        <div class="stage-head">
+          <h1>3F 오피스 평면</h1>
+          <span class="tag">대표실 · 회의실 · 부서 7 · 탕비실</span>
+          <span class="spacer"></span>
+          <span class="tag" id="updated">갱신 --:--</span>
+        </div>
+        <div class="canvas-holder" id="holder">
+          <canvas id="office" width="540" height="696" aria-label="픽셀아트 AI 오피스 평면도"></canvas>
+          <div class="overlay" id="overlay"></div>
+        </div>
+        <div class="stage-foot">
+          <span class="k"><i class="dot b"></i>작업중</span>
+          <span class="k"><i class="dot g"></i>완료</span>
+          <span class="k"><i class="dot y"></i>결재대기</span>
+          <span style="margin-left:auto">방을 누르면 부서 상세</span>
+        </div>
+      </section>
+
+      <section class="panel detail" id="detailPanel">
+        <div class="panel-head">
+          <h2>📋 부서 상세</h2>
+          <span class="cnt neutral" id="detailHint">방 선택</span>
+        </div>
+        <div class="panel-body" id="detailBody"></div>
+      </section>
+    </div>
+
+    <div class="col">
+      <section class="panel">
+        <div class="panel-head">
+          <h2>📝 대표 결재함</h2>
+          <span class="cnt" id="apCnt">0</span>
+        </div>
+        <div class="panel-body" id="approvals"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>📂 부서별 처리 완료</h2>
+          <span class="cnt neutral" id="doneCnt">0</span>
+        </div>
+        <div class="panel-body" id="completed"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>🕒 오피스 로그</h2>
+          <span class="cnt neutral">최근</span>
+        </div>
+        <div class="panel-body">
+          <div class="logs" id="logs"></div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<footer>
+  데이터는 <a href="./data.json">office/data.json</a> 하나만 고치면 바로 반영된다 · 결재는 앱에서 지시하면 처리된다 ·
+  <span id="stamp"></span>
+</footer>
+
+<script src="./app.js"></script>
+</body>
+</html>

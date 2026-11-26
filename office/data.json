@@ -1,0 +1,222 @@
+{
+  "site": "당버지 AI 오피스",
+  "owner": "각하",
+  "updated": "2026-11-26T12:52:00+09:00",
+  "headline": "5대 포트폴리오 + 지원 2부서 · 7팀 가동 중",
+  "stats": {
+    "approvals": 4,
+    "teams": 7,
+    "bots": 13
+  },
+  "ceo": {
+    "name": "각하",
+    "room": "대표실",
+    "bubble": "결재 4건 대기",
+    "note": "결재함 확인"
+  },
+  "approvals": [
+    {
+      "id": "cashback",
+      "icon": "🔮",
+      "team": "로컬직판팀 · 희망당",
+      "title": "희망당 캐시백 5,000원",
+      "meta": "만료 1일 남음",
+      "urgent": true,
+      "options": ["충전 재개", "만료 전 소진 정리", "보류"],
+      "note": "오늘 안에 결정"
+    },
+    {
+      "id": "kd28",
+      "icon": "🏥",
+      "team": "건강·공포팀 · kingdom1541",
+      "title": "kingdom1541 28편 교체",
+      "meta": "11/27~12/11 예약글 전환",
+      "urgent": false,
+      "options": ["7가지", "9가지", "11가지"],
+      "note": "홀수 열거형 전환"
+    },
+    {
+      "id": "ducat",
+      "icon": "💰",
+      "team": "재무·스폰서팀 · Ducat",
+      "title": "Ducat $400 스폰서",
+      "meta": "X 교육 원고 초안",
+      "urgent": false,
+      "options": ["추적 링크", "정산 확인"],
+      "note": "원고 → 링크 → 정산"
+    },
+    {
+      "id": "sehuro",
+      "icon": "🧾",
+      "team": "재무·스폰서팀 · 세후로",
+      "title": "세후로 40만 원",
+      "meta": "세무법인 서진 견적서 발송 후",
+      "urgent": false,
+      "options": ["결제", "서류 4종"],
+      "note": "결제·서류 대기"
+    }
+  ],
+  "completed": [
+    {
+      "team": "콘텐츠팀",
+      "icon": "📈",
+      "items": [
+        "티스토리 11/27~12/09 39편 홀수 열거형 교체 완료",
+        "다연돈 12/01~12/14 14편 예약 완료",
+        "경제 kingwon1633 28편 예약 완료"
+      ],
+      "links": []
+    },
+    {
+      "team": "재무·스폰서팀",
+      "icon": "💰",
+      "items": [
+        "세무법인 서진 40만 원 워드 견적서(.docx) 제작 완료"
+      ],
+      "links": []
+    },
+    {
+      "team": "웹도구팀",
+      "icon": "🛠️",
+      "items": [
+        "인스타 릴스 편집기 배포 완료",
+        "트레이딩뷰 차트 배포 완료",
+        "AI 오피스 현황판 배포 진행"
+      ],
+      "links": [
+        { "label": "릴스 편집기", "href": "../reels-editor/" },
+        { "label": "차트", "href": "../chart/?v=4" },
+        { "label": "오피스", "href": "./" }
+      ]
+    },
+    {
+      "team": "로컬팀 · 희망당",
+      "icon": "🔮",
+      "items": [
+        "12:36 무인 점검 신규 문의 0건"
+      ],
+      "links": []
+    }
+  ],
+  "departments": [
+    {
+      "id": "economy",
+      "name": "경제·X팀",
+      "icon": "📈",
+      "room": "economy",
+      "channels": ["kingwon1633", "@bibae151968"],
+      "bubble": "28편 예약완",
+      "status": "ok",
+      "progress": 100,
+      "updated": "12:40",
+      "tasks": [
+        { "text": "kingwon1633 28편 예약 완료", "state": "done" },
+        { "text": "X 아침 브리핑 · 원고 납품", "state": "run" },
+        { "text": "30·40·50대 연봉·실수령·절세 축 유지", "state": "run" }
+      ]
+    },
+    {
+      "id": "health",
+      "name": "건강·공포팀",
+      "icon": "🏥",
+      "room": "health",
+      "channels": ["kingdom1541", "티스토리 대한민국 꿀통 건강신호"],
+      "bubble": "28편 결재 대기",
+      "status": "wait",
+      "progress": 62,
+      "updated": "12:41",
+      "tasks": [
+        { "text": "kingdom1541 28편 교체 — 11/27~12/11 홀수 열거형", "state": "wait" },
+        { "text": "티스토리 11/27~12/09 39편 교체 완료", "state": "done" }
+      ]
+    },
+    {
+      "id": "dayeon",
+      "name": "다연돈팀",
+      "icon": "🎭",
+      "room": "dayeon",
+      "channels": ["smart_actor", "유튜브", "@smartacting_no.1"],
+      "bubble": "14편 예약완",
+      "status": "ok",
+      "progress": 100,
+      "updated": "12:38",
+      "tasks": [
+        { "text": "12/01~12/14 14편 예약 완료", "state": "done" },
+        { "text": "인스타 4종 카드뉴스 병행", "state": "run" }
+      ]
+    },
+    {
+      "id": "global",
+      "name": "해외수면팀",
+      "icon": "🇧🇷",
+      "room": "global",
+      "channels": ["Oração & Paz"],
+      "bubble": "다음 편 준비",
+      "status": "run",
+      "progress": 45,
+      "updated": "12:30",
+      "tasks": [
+        { "text": "8탄부터 야간 통나무집·벽난로 배경 적용", "state": "run" },
+        { "text": "차기 편 렌더·업로드 대기", "state": "wait" }
+      ]
+    },
+    {
+      "id": "local",
+      "name": "로컬직판팀",
+      "icon": "🔮",
+      "room": "local",
+      "channels": ["희망당"],
+      "bubble": "무인점검 OK",
+      "status": "ok",
+      "progress": 95,
+      "updated": "12:36",
+      "tasks": [
+        { "text": "12:36 무인 점검 신규 문의 0건", "state": "done" },
+        { "text": "캐시백 5,000원 만료 D-1", "state": "wait" }
+      ]
+    },
+    {
+      "id": "finance",
+      "name": "재무·스폰서팀",
+      "icon": "💰",
+      "room": "finance",
+      "channels": ["세후로", "Ducat", "빅케파부유한회사"],
+      "bubble": "견적서 완료",
+      "status": "wait",
+      "progress": 70,
+      "updated": "12:42",
+      "tasks": [
+        { "text": "세무법인 서진 40만 원 워드 견적서(.docx) 완료", "state": "done" },
+        { "text": "Ducat $400 원고 초안·추적 링크·정산", "state": "wait" },
+        { "text": "세후로 결제·서류 4종 대기", "state": "wait" }
+      ]
+    },
+    {
+      "id": "webtools",
+      "name": "웹도구팀",
+      "icon": "🛠️",
+      "room": "webtools",
+      "channels": ["릴스 편집기", "차트", "오피스"],
+      "bubble": "오피스 배포중",
+      "status": "run",
+      "progress": 90,
+      "updated": "12:52",
+      "links": [
+        { "label": "릴스 편집기", "href": "../reels-editor/" },
+        { "label": "차트", "href": "../chart/?v=4" }
+      ],
+      "tasks": [
+        { "text": "인스타 릴스 편집기 배포 완료", "state": "done" },
+        { "text": "트레이딩뷰 차트 ?v=4 배포 완료", "state": "done" },
+        { "text": "AI 오피스 현황판 배포 진행", "state": "run" }
+      ]
+    }
+  ],
+  "logs": [
+    { "t": "12:52", "text": "웹도구팀 · 오피스 현황판 배포 착수" },
+    { "t": "12:42", "text": "재무·스폰서팀 · 세후로 견적서 .docx 완료" },
+    { "t": "12:41", "text": "건강·공포팀 · kingdom1541 28편 결재 상정" },
+    { "t": "12:36", "text": "로컬팀 · 희망당 무인 점검 0건" },
+    { "t": "12:38", "text": "다연돈팀 · 12/01~12/14 14편 예약 완료" }
+  ]
+}
