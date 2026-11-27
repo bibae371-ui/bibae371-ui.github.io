@@ -177,6 +177,7 @@
     box-shadow:0 24px 44px -34px rgba(93,60,24,.75), 0 1px 0 #fff inset;
   }
   .claywrap{position:relative;margin:0 auto;width:fit-content;max-width:100%;line-height:0}
+  .claywrap picture{display:block}
   .claywrap img{display:block;width:auto;height:auto;max-width:100%;max-height:min(74vh,720px)}
   @media(max-width:939px){ .claywrap{width:100%} .claywrap img{width:100%} }
 
@@ -541,7 +542,10 @@
       <div>
         <div class="stage" id="stage">
           <div class="claywrap" id="clayView">
-            <img src="./clay_office.png" alt="클레이 3D 아이소메트릭 오피스 — 대회의실, 대표 지휘실, 부서 책상, 라운지" width="1024" height="1536" id="clayImg">
+            <picture>
+              <source type="image/webp" srcset="./clay_office_768.webp 768w, ./clay_office.webp 1024w" sizes="(min-width:940px) 540px, 100vw">
+              <img src="./clay_office.png" id="clayImg" width="1024" height="1536" alt="클레이 3D 아이소메트릭 오피스 — 대회의실, 대표 지휘실, 부서 책상, 라운지">
+            </picture>
             <button class="hot" type="button" data-room="meet" style="left:21%;top:39%" title="대회의실 상세">
               <span class="hi" aria-hidden="true">🏛️</span>대회의실<span class="hs run" id="hotMeet">3</span>
             </button>
