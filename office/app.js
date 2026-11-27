@@ -114,6 +114,12 @@
     }
   }
 
+  function qVal(t) {
+    t = String(t == null ? '' : t);
+    return (t === '—' || t === '미확인' || t === '') ? '99:99' : t;
+  }
+  function qCmp(a, b) { return qVal(a.t).localeCompare(qVal(b.t)); }
+
   function statusLabel(s) {
     return s === 'ok' ? '완료' : s === 'wait' ? '대기' : '진행중';
   }
@@ -150,7 +156,7 @@
     depts.forEach(function (d) {
       (d.queue || []).forEach(function (it) { q.push({ t: it.t || '—', text: it.text, d: d }); });
     });
-    q.sort(function (a, b) { return String(a.t).localeCompare(String(b.t)); });
+    q.sort(qCmp);
     $('#quickCnt').textContent = q.length;
     $('#quickBody').innerHTML = q.length
       ? '<ul class="tasks">' + q.slice(0, 7).map(function (it) {
@@ -205,7 +211,7 @@
       depts.forEach(function (d) {
         (d.queue || []).forEach(function (it) { q2.push({ t: it.t || '—', text: it.text, d: d }); });
       });
-      q2.sort(function (a, b) { return String(a.t).localeCompare(String(b.t)); });
+      q2.sort(qCmp);
       hint.textContent = '오늘 일정 ' + q2.length;
       body.innerHTML =
         '<div class="dt-hd"><span class="nm">오늘의 대회의실</span><span class="st run">공유중</span></div>' +
@@ -370,7 +376,7 @@
         '<div class="top"><span>' + esc(c.icon || '📊') + '</span>' +
         '<span class="nm">' + esc(c.name) + '</span><span class="tg">' + esc(c.tag || '') + '</span>' +
         '<span class="st ' + esc(c.status || 'run') + '">' + statusLabel(c.status) + '</span></div>' +
-        '<div class="nums"><span class="big">' + (has ? num(c.today) : '—') + '<small>' + esc(c.unit || '뷰') + '</small></span>' +
+        '<div class="nums"><span class="big">' + (has ? num(c.today) + '<small>' + esc(c.unit || '뷰') + '</small>' : '—') + '</span>' +
         delta + '<span class="cmp">어제 확정 <b>' + num(c.yesterday) + '</b></span></div>' +
         '<div class="track"><i style="width:' + ratio + '%"></i></div>' +
         '<div class="cap"><span>' + (has ? (c.todayAt ? c.todayAt + ' 기준' : '오늘') : '오늘 미집계') +
