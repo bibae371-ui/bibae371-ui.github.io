@@ -87,7 +87,8 @@
   /* ================================================================ 캔버스 */
   function layout() {
     var holder = $('#holder');
-    var w = holder.clientWidth || 360;
+    var wrap = holder.parentElement || holder;
+    var w = wrap.clientWidth || holder.clientWidth || 360;
     var maxH = Math.max(380, (window.innerHeight || 800) * 0.76);
     var cssW = Math.max(260, Math.min(w, maxH * VW / VH));
     var cssH = cssW * VH / VW;

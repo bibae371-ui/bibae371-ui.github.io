@@ -1,60 +1,65 @@
 # AI 오피스 현황판 (`/office/`)
 
-픽셀아트 AI 오피스 평면에서 봇들이 일하는 화면 + 대표 결재함 / 부서별 처리 완료 패널.
+탭 5개로 나눈 AI 오피스 대시보드.
+
+| 탭 | 내용 |
+|---|---|
+| 🗺️ 오피스 맵 | 클레이 3D 오피스 이미지(`clay_office.png`) 위에 방·부서 배지와 실시간 상태 칩 → 클릭 시 상세. `기본`으로 바꾸면 픽셀아트 캔버스(봇 13명 애니메이션) |
+| 💬 회의실 | 대회의실·지휘실·라운지·부서별 방별 팀장 보고 피드, 하단 `@all / @경제부 / @건강부 / @티스토리 / @다연돈 / @해외부` 필터 |
+| 📋 작업실 | 대표 결재함(승인 대기·처리 완료) + 부서별 진행 중·예약 큐·오늘 완료 |
+| 📊 부서현황 | 5대 채널 오늘 수치·어제 확정 대비 증감·애드포스트/애드센스 상태 |
+| 📝 메모 | 진행 원칙·경계 요약, 최근 변경 로그, 오피스 로그 |
+
 주소: https://bibae371-ui.github.io/office/
 
 ## 파일
 
 | 파일 | 역할 |
 |---|---|
-| `index.html` | 화면 골격·CSS (여기는 거의 안 건드린다) |
-| `app.js` | 픽셀 렌더러·봇 애니메이션·패널 렌더 |
+| `index.html` | 화면 골격·CSS·정적 배지 4개(대회의실/지휘실/부서/라운지). 배지 위치는 `left/top` % 값 |
+| `app.js` | 탭 UI·회의실 피드·결재함·부서현황·메모 렌더 |
+| `pixelmap.js` | 픽셀아트 맵 캔버스·봇 애니메이션 (`기본` 보기) |
 | `data.json` | **현황 데이터. 갱신은 이 파일만 고치면 된다.** |
+| `clay_office.png` | 클레이 3D 오피스 이미지 (1024×1536). 텍스트 라벨 없이 생성한 원본 |
+
+> `index.html`의 스크립트 쿼리(`app.js?v=12`)는 JS를 고칠 때마다 올린다. GitHub Pages가 URL 단위로 캐시하기 때문에, 올리지 않으면 폰에 옛 JS가 남는다.
 
 ## 갱신 방법
 
 1. `office/data.json` 수정 → `git commit` → `git push`
 2. GitHub Pages 반영(약 30초) 뒤 새로고침. 페이지는 5분마다 자동으로 다시 읽는다.
-   (즉시 확인하려면 새로고침 한 번)
 
 ## data.json 필드
 
 ```
-updated      "2026-11-26T12:52:00+09:00"  마지막 갱신 시각 (헤더에 표시)
-headline     "5대 포트폴리오 + 지원 2부서 · 7팀 가동 중"
+updated      "2026-11-27T11:45:00+09:00"   마지막 갱신 시각
+headline     헤더 한 줄 요약
+ceo          {name, room, bubble, note}    지휘실 배지·히어로 문구
 approvals[]  대표 결재함: {icon, team, title, meta, urgent, options[], note}
 completed[]  부서별 처리 완료: {team, icon, items[], links[{label, href}]}
 logs[]       오피스 로그: {t, text}
 departments[] 부서 7개 (방과 1:1 연결)
-   id        고유 id (economy/health/dayeon/global/local/finance/webtools)
-   name      방 라벨 (예: "경제·X팀")
-   icon      이모지
-   room      방 키 — 아래 표의 값만 쓸 수 있다
-   channels  채널 칩 (계정·매체 이름)
-   bubble    방 위 말풍선 문구 (짧게, 8자 안팎)
-   status    ok(완료) | wait(결재대기) | run(진행중)  → 말풍선 색이 바뀐다
-   progress  0~100 (상세 카드 진행바)
-   updated   "12:40" 같은 갱신 시각
-   tasks[]   {text, state: done|wait|run}
-   links[]   (선택) {label, href}
+   id, name, icon, room, channels[], bubble, status(ok|wait|run), progress,
+   updated, tasks[{text, state: done|wait|run}], links[], queue[{t, text}]
+channels[]   5대 채널 카드: {name, tag, icon, today(null 가능), todayAt, yesterday, unit, note, status}
+revenue[]    수익·광고 카드: {icon, name, value, state, note}
+meeting[]    회의실 피드: {room: hall|ceo|lounge|team, team: secretary|economy|health|tistory|dayeon|global|local|finance|webtools, t: "11:42", text}
+memo         {principles[], boundaries[], changelog[{t, v, text}]}
 ```
 
-## 방 배치 (고정)
+`meeting[]`·`channels[]`·`revenue[]`·`memo`가 없어도 화면은 뜬다(app.js 안의 기본값 사용). 값이 있으면 data.json이 우선.
+
+## 방 배치 (픽셀 맵, 고정)
 
 ```
-        [대표실]   복도   [회의실]        ← 3F 위층
+        [대표실]   복도   [회의실]
 [경제·X팀]   ‖   [로컬직판팀]
-[건강·공포팀] ‖   [재무·스폰서팀]          ← 가운데 부서층
+[건강·공포팀] ‖   [재무·스폰서팀]
 [다연돈팀]   ‖   [웹도구팀]
 [해외수면팀]  ‖
-        [탕비실]                        ← 아래층
+        [탕비실]
 ```
 
-팀을 새로 추가하려면 `app.js`의 `ROOMS`에 방을 하나 더 넣고(좌 4칸·우 3칸 구조라 자리가 필요),
-`departments`에 같은 `room` 키로 항목을 넣으면 된다.
+## 개인정보 원칙
 
-## 동작
-
-- 봇 13명: 부서 봇 7 + 회의실 팀장 3 + 탕비실 2 + 대표 1
-- 부서 봇은 책상에서 타이핑하다가 결재 서류를 들고 대표실로 올라가고, 회의실·탕비실에 갔다 온다.
-- 방을 누르면 아래 `부서 상세` 카드가 그 부서로 바뀌고 방이 하이라이트된다. 다시 누르면 전체 보기.
+`data.json`에는 실명·생일·나이·개인 계좌·비밀번호·토큰을 넣지 않는다. 수금용 법인 명의와 사업자정보까지만.
